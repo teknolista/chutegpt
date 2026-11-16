@@ -69,3 +69,11 @@ docs/eBooks/
 .windsurfrules
 .opencode/
 skills-lock.json
+
+# Generated daily Caixa results and local update state
+/docs/Dia de Sorte-atual.xlsx
+/docs/.dia-de-sorte-atualizacao.json
+__pycache__/
+
+# Local lock for the Caixa workbook updater
+/docs/.dia-de-sorte-atualizacao.lock

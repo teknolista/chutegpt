@@ -5,143 +5,101 @@
 <h1 align="center">ChuteGPT</h1>
 
 <p align="center">
-  <strong>🍀 Aplicativo CLI para geração de apostas da loteria Dia de Sorte, desenvolvido em Rust para ambiente Desktop.</strong><br>
-  <em>Loteria Dia de Sorte</em>
-</p>
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/[PACKAGE_NAME]" target="_blank">
-    <img src="https://img.shields.io/npm/v/[PACKAGE_NAME]?style=flat-square" alt="Versão NPM">
-  </a>
-  <a href="[GITHUB_REPO_URL]/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/[USERNAME]/[REPO_NAME]?style=flat-square" alt="Licença">
-  </a>
-  <a href="[GITHUB_REPO_URL]/stargazers">
-    <img src="https://img.shields.io/github/stars/[USERNAME]/[REPO_NAME]?style=social" alt="GitHub stars">
-  </a>
-  <a href="https://buymeacoffee.com/teknolista" target="_blank">
-    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat-square&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee">
-  </a>
+  <strong>🍀 Aplicativo de linha de comando em Rust para explorar estatísticas da loteria Dia de Sorte.</strong><br>
+  <em>Em desenvolvimento para desktop Linux</em>
 </p>
 
 ---
 
-<p align="center">
-  <img src="[SHOWCASE_IMAGE_URL]" alt="Demonstração do ChuteGPT"/>
-</p>
+O **ChuteGPT** é um aplicativo CLI (para terminais) dedicado à análise de dados e estatísticas da loteria Dia de Sorte, da Caixa Econômica Federal. O projeto explora matemática, combinatória, computação numérica e estratégias de análise histórica; novos métodos e funcionalidades continuarão sendo especificados e validados.
 
-**ChuteGPT** [DETAILED_DESCRIPTION_PT]
+O objetivo do ChuteGPT é aplicar processamento numérico, combinatória e técnicas estatísticas aos resultados anteriores da loteria Dia de Sorte, identificando padrões nas dezenas para investigar formas de estimar o próximo resultado com a maior acurácia possível. As análises devem utilizar a versão mais recente disponível dos resultados oficiais da Caixa e avaliar suas estratégias com dados históricos e métodos de validação apropriados.
 
-> 📚 **Evolução do Projeto**: [PROJECT_EVOLUTION_DESCRIPTION_PT]
+> 📚 **Evolução do projeto:** a base Rust e o fluxo de especificação foram inicializados. A versão em desenvolvimento apresenta um menu interativo com análises históricas; geração de apostas e simulações permanecem para uma etapa futura. A integração e a compatibilidade com outras plataformas ainda estão em verificação.
 
 ## 📂 Documentação
 
-- [ADR Template](./ADR-template.md)
-
-
+- [Pesquisa sobre o Dia de Sorte e fontes oficiais](docs/dia-de-sorte-referencia.md)
+- [Análise das estratégias das aplicações legadas](docs/analise-estrategias-legado.md)
+- [Especificações e situação do projeto (PentaPRO)](pentapro/process/index.md)
+- [Configuração do OpenSpec](openspec/config.yaml)
+- [Orientações para agentes](AGENTS.md)
 
 ## 🎓 Funcionalidades Principais
 
-* **[FEATURE_1]**: [FEATURE_1_DESCRIPTION_PT]
-* **[FEATURE_2]**: [FEATURE_2_DESCRIPTION_PT]
-* **[FEATURE_3]**: [FEATURE_3_DESCRIPTION_PT]
-* **[FEATURE_4]**: [FEATURE_4_DESCRIPTION_PT]
+A versão em desenvolvimento oferece 22 análises individuais: paridade, repetência, recorrência histórica, sequências, soma, raiz digital, dispersão, espaçamento, decenário, colunas, matriz, ciclos de 27 e 31 dezenas, ordinal, dezenas individuais, mês da sorte, frequência e ausência, distância, média das raízes, dispersão entre frequência e atraso, premiação por dia da semana e séries de mês e premiação.
+
+Os resultados são apresentados em gráficos e tabelas navegáveis, com detalhes estatísticos das séries quando aplicáveis. A aplicação informa o intervalo de concursos, os dados ausentes e o progresso; é possível cancelar o processamento e manter o resultado na tela para análise. Os resultados descrevem o histórico e não garantem ganhos ou a previsão de sorteios futuros.
 
 ## 🛠️ Tecnologias Utilizadas
 
-* **Framework**: [FRAMEWORK]
-* **Linguagem**: [LANGUAGE]
-* **[ADDITIONAL_TECH_1]**: [ADDITIONAL_TECH_1_DESCRIPTION_PT]
-* **[ADDITIONAL_TECH_2]**: [ADDITIONAL_TECH_2_DESCRIPTION_PT]
-* **[ADDITIONAL_TECH_3]**: [ADDITIONAL_TECH_3_DESCRIPTION_PT]
-* **Bibliotecas**: [LIBRARIES_LIST_PT]
+- **Linguagem:** Rust, edição 2024.
+- **Compilação e gerenciamento do projeto:** Cargo.
+- **Especificação:** PentaPRO e OpenSpec.
+- **Bibliotecas externas:** Ratatui e Crossterm para o terminal; Calamine para leitura Excel; Chrono, serde_json, SHA-2 e zip para datas, metadados e validação dos dados.
+- **Sistema pretendido nesta etapa:** desktop Linux; versões e arquiteturas suportadas ainda serão definidas. Windows e macOS poderão ser considerados em uma etapa futura.
+
+### Atualização dos resultados para desenvolvimento
+
+No início do trabalho em cada dia, execute `python3 scripts/atualizar_resultados.py` no Linux. O script requer Python 3 e consulta o serviço usado pelo botão da Caixa; salva a cópia em `docs/Dia de Sorte-atual.xlsx` sem substituir `docs/Dia de Sorte.xlsx`. Ele evita novo download no mesmo dia; use `--force` após um sorteio para consultar novamente. Uma consulta bem-sucedida não garante que a Caixa já tenha publicado o resultado mais recente. Se o download ou a validação falhar, a cópia anterior é preservada e o erro é informado. O agente inicia essa rotina ao começar o trabalho do dia, sem agendamento em segundo plano. Antes de analisar os dados, confira o número do último concurso informado pelo script. Se a atualização falhar, uma cópia anterior pode estar desatualizada.
 
 ## 📖 Como Usar e Instalar
 
-A instalação é simples e direta.
+Ainda não há versão distribuída nem procedimento de instalação para usuários finais. Para executar a versão em desenvolvimento, instale Rust e Cargo, atualize a cópia local conforme a seção anterior e, na raiz do repositório, execute:
 
-1. Acesse a **[Página de Releases aqui]([RELEASES_URL])**.
-2. Baixe o instalador mais recente para o seu sistema operacional (ex: `ChuteGPT-Setup-X.X.X.exe` para Windows).
-3. Execute o instalador.
-   * **Observação para Windows:** O SmartScreen pode exibir um aviso de "Editor Desconhecido". Isso é normal. Clique em "Mais informações" e depois em "Executar assim mesmo".
-4. [SETUP_STEP_1_PT]: [SETUP_STEP_1_DESCRIPTION_PT]
+```sh
+cargo run -- --planilha "docs/Dia de Sorte-atual.xlsx"
+```
 
-## 🌐 [CUSTOMIZATION_SECTION_TITLE_PT]
+Use `cargo run -- --help` para consultar a opção disponível. Em um terminal interativo, use **↑/↓** para escolher uma estratégia e **Enter** para executá-la. A descrição da estratégia aparece à direita; use **Page Up/Page Down** ou **H/L** para rolá-la. O nome completo da estratégia e o caminho completo da planilha também aparecem nessa área. O cabeçalho mostra o nome do aplicativo, a fonte e seu estado de verificação na mesma linha: enquanto a verificação inicial em segundo plano não termina, informa que a fonte ainda não foi verificada; depois, mostra o estado real da cópia selecionada. Se o arquivo for lido e rejeitado, o cabeçalho informa **falha na verificação**, o motivo aparece na descrição da estratégia e **Enter** tenta carregar novamente. No resultado, use **Tab/Shift+Tab** para mudar de seção, **←/→** para escolher uma categoria, **S** ou **Enter** para ver os detalhes da série e **↑/↓** para rolar. **Esc** volta à tela anterior ou cancela o processamento; **Q** encerra no menu ou no resultado. A tela de resultados permanece disponível até a navegação.
 
-O ChuteGPT permite que você [CUSTOMIZATION_DESCRIPTION_PT]:
+O aplicativo lê a planilha local e não faz download ao iniciar. Se o registro de atualização estiver ausente, não corresponder à planilha ou for anterior ao dia local, ele avisa e permite continuar ou voltar. Uma verificação no mesmo dia não garante que um sorteio posterior já tenha sido publicado pela Caixa.
 
-### Método 1: [METHOD_1_TITLE_PT]
+## 🌐 Personalização
 
-1. [METHOD_1_STEP_1_PT]
-2. [METHOD_1_STEP_2_PT]
-3. [METHOD_1_STEP_3_PT]
-4. [METHOD_1_STEP_4_PT]
-5. [METHOD_1_STEP_5_PT]
-6. [METHOD_1_STEP_6_PT]
+As opções de personalização e configuração ainda serão definidas.
 
-### Método 2: [METHOD_2_TITLE_PT]
+### Métodos de configuração
 
-1. [METHOD_2_STEP_1_PT]
-2. [METHOD_2_STEP_2_PT]
-3. [METHOD_2_STEP_3_PT]
-4. [METHOD_2_STEP_4_PT]
+O caminho da planilha pode ser informado com `--planilha CAMINHO`. Caminhos relativos são resolvidos a partir do diretório de execução.
 
-### Tipos de [CUSTOMIZATION_TYPE_PT] Suportados:
-- [SUPPORTED_TYPE_1_PT]
-- [SUPPORTED_TYPE_2_PT]
-- [SUPPORTED_TYPE_3_PT]
-- [SUPPORTED_TYPE_4_PT]
-- [SUPPORTED_TYPE_5_PT]
+### Opções suportadas
+
+Sem `--planilha`, o programa procura `ChuteGPT/Dia de Sorte-atual.xlsx` no diretório de dados do usuário: `$XDG_DATA_HOME` absoluto ou `$HOME/.local/share` no Linux; `$HOME/Library/Application Support` no macOS; e `%LOCALAPPDATA%` no Windows. Os dois últimos caminhos registram o comportamento previsto anteriormente e não constituem suporte validado nesta etapa. Para preservar o registro de atualização ao copiar a planilha do projeto, copie também `docs/.dia-de-sorte-atualizacao.json` para o mesmo diretório da cópia. Sem um registro correspondente, a atualização é informada como desconhecida.
 
 ## 💻 Para Desenvolvedores
 
-Se você deseja clonar o repositório e rodar o projeto localmente:
+Instale o ambiente Rust com o Cargo e os componentes `rustfmt` e `clippy`. Na raiz do repositório, execute:
 
-```bash
-# 1. Clone o repositório
-git clone [GITHUB_REPO_URL].git
-
-# 2. Navegue até a pasta do projeto
-cd [REPO_NAME]
-
-# 3. Instale as dependências
-npm install
-
-# 4. Rode em modo de desenvolvimento
-npm start
-
-# 5. Para criar os instaladores
-npm run package
+```sh
+cargo run -- --planilha "docs/Dia de Sorte-atual.xlsx"
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test
+cargo build --release
 ```
 
-## 📚 Perfeito para [TARGET_AUDIENCE_PT]
+A inicialização foi verificada em Linux, conforme [registro de verificação](pentapro/proof/verification.md). A evidência da implementação interativa está em [verificação das estratégias](pentapro/proof/interactive-strategies.md). Windows e macOS poderão ser considerados em uma etapa futura.
 
-- **[USE_CASE_1_PT]**: [USE_CASE_1_DESCRIPTION_PT]
-- **[USE_CASE_2_PT]**: [USE_CASE_2_DESCRIPTION_PT]
-- **[USE_CASE_3_PT]**: [USE_CASE_3_DESCRIPTION_PT]
-- **[USE_CASE_4_PT]**: [USE_CASE_4_DESCRIPTION_PT]
+## 📚 Para quem é o ChuteGPT
+
+O público, os casos de uso e as jornadas ainda serão definidos. O objetivo inicial é apoiar a exploração de estatísticas relacionadas ao Dia de Sorte por meio de um terminal.
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Sinta-se à vontade para enviar um Pull Request.
+O fluxo de contribuição e as orientações para envio de alterações ainda serão definidos. O projeto utiliza especificações em `pentapro/` e alterações acompanhadas por OpenSpec, conforme as [orientações para agentes](AGENTS.md).
 
-## Data Privacy
+## 🔒 Privacidade dos Dados
 
-- **No personal data** is collected
-- **No cookies** are used for tracking
-- Test results are stored **only in your browser's localStorage**
-- **No server-side** storage of individual responses
-- Users can clear all data by clearing browser storage
+A aplicação lê a planilha local selecionada e seus metadados de atualização; o processamento das estratégias ocorre localmente. O atualizador de desenvolvimento consulta a fonte oficial da Caixa e salva uma cópia em `docs`. A política de privacidade e eventuais formas adicionais de armazenamento ainda serão definidas.
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a Licença [LICENSE_TYPE].
-
-See [LICENSE](.etc/LICENSE) for more details.
+O repositório inclui o texto da GNU General Public License versão 3. Consulte [LICENSE](LICENSE). A identificação SPDX e eventuais condições adicionais estão pendentes de confirmação.
 
 ---
 
 <p align="center"><small>
-Copyleft © 2026 <a href="https://x.com/teknolista">Raul Bras</a> 🇧🇷 Published under the GPL v3.0 license. <br>
-Made in Brazil, in the Land of Oz (SP) , with 🌭 🍕 and AI 🤖.
+Copyleft © 2026 <a href="https://x.com/teknolista">Raul Bras</a> 🇧🇷<br>
+Feito no Brasil, em Osasco (SP), com 🌭 🍕 e IA 🤖.
 </small></p>
