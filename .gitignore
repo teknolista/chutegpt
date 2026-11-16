@@ -50,6 +50,7 @@ legacy/
 # Temporary files from document editors
 docs/**/~$*
 docs/**/*.tmp
+docs/eBooks/
 
 # Local environment files
 **/.env
