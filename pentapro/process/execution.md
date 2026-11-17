@@ -20,3 +20,4 @@ The owner authorized the interactive historical-analysis implementation after fu
 - Every addition or modification is reflected in the owning PentaPRO records, with evidence bound to the tested source hashes.
 - The Windows and macOS scope is deferred by owner decision; do not infer support from a Linux run.
 - The application performs descriptive historical analysis only; no strategy, check or record may imply predictive advantage.
+- Run `cargo test -- --test-threads=1` for deterministic full-suite results; the default parallel execution causes intermittent failure in `ui::tests::preflight_updates_menu_status_without_starting_analysis` due to file-access contention (observed 2026-11-17; see [decisions](../project/decisions.md) DEC-6 and [PROOF](../proof/interactive-strategies.md#test-flakiness-note--2026-11-17)).

@@ -29,4 +29,4 @@ The user writes project prompts in Brazilian Portuguese; respond in Brazilian Po
 
 ## Development and validation
 
-From repository root: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, `cargo run`, and `cargo build --release`. Run checks appropriate to the change and report the platform and gaps. Tests of numerical behavior must cover independent expected results and meaningful boundary cases. Update this guidance when project workflows change.
+From repository root: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test -- --test-threads=1`, `cargo run`, and `cargo build --release`. Run checks appropriate to the change and report the platform and gaps. Use `--test-threads=1` to avoid intermittent parallel-I/O failures in the test suite (see `pentapro/project/decisions.md` DEC-6). Tests of numerical behavior must cover independent expected results and meaningful boundary cases. Update this guidance when project workflows change.
