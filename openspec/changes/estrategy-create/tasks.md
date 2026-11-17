@@ -41,7 +41,7 @@
 - [x] Verify numerical, series eligibility, per-contest display and rounding with targeted automated regressions; exercise minimum terminal size and wrapped scrolling through the actual entry point.
 - [x] Re-run Linux integration checks and reconcile evidence across PentaPRO and OpenSpec.
 
-## 5. Menu explanation and provenance revision (pending)
+## 5. Menu explanation and provenance revision (implemented)
 
 - [x] 5.1 Specify and implement accurate two- or three-paragraph Portuguese descriptions for each of the 22 strategies, covering calculation and all result sections against the existing numerical contracts and actual result views.
 - [x] 5.2 Implement the 30/70 menu and explanation panes with divider, selection-driven updates, discoverable explanation scrolling, and usable resize and narrow-terminal behavior.

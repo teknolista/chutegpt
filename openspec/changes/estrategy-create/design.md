@@ -2,7 +2,7 @@
 
 ## Context
 
-The current Cargo binary only prints a notice. The development updater writes an XLSX file and update metadata under the repository's docs directory. Product requirements, strategy inventory and remaining numerical decisions are in the PentaPRO interactive-strategies records.
+At proposal time the Cargo binary only printed a notice; the implementation recorded in the later sections replaced that bootstrap behavior. The development updater writes an XLSX file and update metadata under the repository's docs directory. Product requirements, strategy inventory and remaining numerical decisions are in the PentaPRO interactive-strategies records.
 
 ## Goals / Non-Goals
 

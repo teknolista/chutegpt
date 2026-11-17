@@ -1,20 +1,24 @@
 # Specification status and resumption
 
-Last updated: 2026-11-16. Scope: Rust development workflow and interactive historical analysis. The owner authorized the current feature implementation; integration evidence and release authority are tracked separately. This is not acceptance of a complete product design.
+Last updated: 2026-11-16. Scope: Rust development workflow and interactive historical analysis. The owner authorized the current feature implementation; Linux integration evidence is recorded in PROOF, and release authority is tracked separately. This is not acceptance of a complete product design.
 
 - [Product](../product/overview.md), [domain](../product/domain.md), [features](../product/features.md), [quality](../product/quality.md) and [terminal experience](../product/experience.md).
 - [Architecture](../project/architecture.md), [decisions](../project/decisions.md), [delivery](../project/delivery.md), [security](../project/security.md).
 - [Environments](../production/environments.md), [operations](../production/operations.md), [evolution](../production/evolution.md).
 - [Traceability](../proof/traceability.md), [verification](../proof/verification.md), [validation](../proof/validation.md).
-- [Change control](change-control.md), [execution](execution.md).
+- [Change control](change-control.md), [execution](execution.md), [stage 1 completion and readiness](stage-1-completion.md).
 
 Coverage: bootstrap and selected interactive-analysis behavior Included; numerical checks and Linux terminal evidence are linked below. Other target-platform, user-value, release and distribution evidence is Pending; hosted services are not applicable. The active change owns the remaining integration tasks.
 
-Active change: [daily results update](../../openspec/changes/atualizar-resultados-diarios/proposal.md). Review its validation and reconcile/archive according to the OpenSpec workflow.
+Active changes: [interactive analysis](../../openspec/changes/estrategy-create/proposal.md) and [daily results update](../../openspec/changes/atualizar-resultados-diarios/proposal.md) are both implemented and validated on the recorded Linux snapshot; neither is archived. Review their validation and reconcile according to the OpenSpec workflow.
 
 Legacy strategy research: [inventory](../../docs/analise-estrategias-legado.md). Its selected historical strategies are represented in the active change; additional product capabilities remain future scope.
 
-Active full-scope interactive analysis: [readiness and open decisions](interactive-strategies.md), [product catalog](../product/interactive-strategies.md), [design](../project/interactive-strategies.md), [operations](../production/interactive-strategies.md), [verification plan](../proof/interactive-strategies.md), and [active OpenSpec change](../../openspec/changes/estrategy-create/proposal.md). Implementation readiness was assessed; integration and release evidence remain separate.
+Active full-scope interactive analysis: [readiness and open decisions](interactive-strategies.md), [product catalog](../product/interactive-strategies.md), [design](../project/interactive-strategies.md), [operations](../production/interactive-strategies.md), [verification plan](../proof/interactive-strategies.md), and [active OpenSpec change](../../openspec/changes/estrategy-create/proposal.md). Implementation and Linux integration checks are recorded in PROOF; release evidence remains separate.
+
+2026-11-16: final cross-artifact review reconciled the PRODUCTION invocation note, added requirement-to-code-to-check traceability and updated the PROCESS index status. Both OpenSpec changes are implemented and validated on the recorded Linux snapshot; neither is archived, and release remains a separate stage.
+
+2026-11-16: the [stage 1 completion and readiness assessment](stage-1-completion.md) records coverage, the increment readiness verdict (ready for continued local use on Linux at the recorded evidence level) and the evidence that remains absent. Distribution, other platforms, accessibility and independent sign-off stay Not assessed or Pending.
 
 2026-11-16: [interactive strategy full-scope author review](interactive-strategies.md#full-scope-author-readiness-review--2026-11-16) assessed the selected change ready for authorized implementation. Previous bootstrap-level and early-draft status statements above are historical; implementation and Linux integration were completed afterwards, while target-platform and release verification remain pending.
 
