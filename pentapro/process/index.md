@@ -1,6 +1,6 @@
 # Specification status and resumption
 
-Last updated: 2026-11-16. Scope: Rust development workflow and interactive historical analysis. The owner authorized the current feature implementation; Linux integration evidence is recorded in PROOF, and release authority is tracked separately. This is not acceptance of a complete product design.
+Last updated: 2026-11-17. Scope: Rust development workflow and interactive historical analysis. The owner authorized the current feature implementation; Linux integration evidence is recorded in PROOF, and release authority is tracked separately. This is not acceptance of a complete product design.
 
 - [Product](../product/overview.md), [domain](../product/domain.md), [features](../product/features.md), [quality](../product/quality.md) and [terminal experience](../product/experience.md).
 - [Architecture](../project/architecture.md), [decisions](../project/decisions.md), [delivery](../project/delivery.md), [security](../project/security.md).
@@ -8,7 +8,7 @@ Last updated: 2026-11-16. Scope: Rust development workflow and interactive histo
 - [Traceability](../proof/traceability.md), [verification](../proof/verification.md), [validation](../proof/validation.md).
 - [Change control](change-control.md), [execution](execution.md), [stage 1 completion and readiness](stage-1-completion.md).
 
-Coverage: bootstrap and selected interactive-analysis behavior Included; numerical checks and Linux terminal evidence are linked below. Other target-platform, user-value, release and distribution evidence is Pending; hosted services are not applicable. The active change owns the remaining integration tasks.
+Coverage: bootstrap and selected interactive-analysis behavior Included; numerical checks and Linux terminal evidence are linked below. Other target-platform, user-value, release and distribution evidence is Pending; hosted services are not applicable. The active changes own no remaining implementation tasks; archive and release decisions remain separate.
 
 Active changes: [interactive analysis](../../openspec/changes/estrategy-create/proposal.md) and [daily results update](../../openspec/changes/atualizar-resultados-diarios/proposal.md) are both implemented and validated on the recorded Linux snapshot; neither is archived. Review their validation and reconcile according to the OpenSpec workflow.
 
@@ -42,3 +42,5 @@ The single-line main-menu header revision is implemented and checked as recorded
 2026-11-16 final review correction: the reported lint gate now passes; a startup preflight exposes bound freshness before the first strategy; S21 wording and leading-undefined series handling were reconciled; negative hundredths formatting was corrected. Linux fmt, Clippy, 33 Rust tests, 13 Python tests, release build, OpenSpec strict validation and a pseudo-terminal preflight check passed. Current hashes and remaining limits are in [PROOF](../proof/interactive-strategies.md#final-review-correction-closure--2026-11-16). Release and archive remain separate.
 
 2026-11-16 peer-review follow-up: a source rejected by the background preflight is reported as `falha na verificação` with the reason in the explanation; S17/S20 series declare the excluded leading positions; scale-100 formatting is shared through `presentation::format_value`; the S17/S20 naming and the design implementation status were corrected; and the explanation-scroll check uses the minimum supported size (55×19). Linux fmt, Clippy, 36 Rust tests, 13 Python tests, release build, OpenSpec strict validation, `git diff --check` and the pseudo-terminal checks passed. Evidence, limits and current hashes are in [PROOF](../proof/interactive-strategies.md#peer-review-follow-up-closure--2026-11-16). Release and archive remain separate.
+
+2026-11-17: the daily updater downloaded and validated the official workbook through contest 1349 and the Linux checks plus a pseudo-terminal parity/S20 journey were rerun; the PROCESS "binary only prints a notice" reconstruction was labeled as a proposal-snapshot record and the README strategy list now names all 22 strategies. Evidence and current limits are in [PROOF](../proof/interactive-strategies.md#workbook-refresh-and-revalidation--2026-11-17-contest-1349); release, distribution, archive and other platforms remain separate.

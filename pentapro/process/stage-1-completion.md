@@ -48,6 +48,8 @@ Date: 2026-11-16. Scope: the first implementation increment of ChuteGPT on Linux
 
 Readiness verdict for Stage 1: **Ready for continued local use on Linux by the owner**, at the recorded evidence level. The next increment (release, distribution, installation outside the repository, other platforms, accessibility acceptance) is **Not assessed** and requires its own specification, evidence and authorization.
 
+Refresh history: on 2026-11-17 the daily updater downloaded a new official workbook validated through contest 1349, and the Linux checks and pseudo-terminal journeys were rerun on that snapshot with the same behavior (see [PROOF](../proof/interactive-strategies.md#workbook-refresh-and-revalidation--2026-11-17-contest-1349)). This changes the data snapshot, not the assessed code.
+
 ## What the evidence does not establish
 
 Windows and macOS builds or runtime behavior; other terminal emulators and widths; human accessibility and usability; exhaustive malformed-workbook handling and full equivalence between the Python updater and the Rust reader; independent review after the last corrections; performance characterization beyond the recorded load time; any predictive advantage, expected return or guarantee for a future draw; installation, packaging, distribution and release readiness. The recorded reviews were performed by the implementing session; an independent reviewer has not signed off on the delivered snapshot.

@@ -6,14 +6,14 @@ User-confirmed: show all legacy contest-analysis strategies that can be specifie
 
 Current state: the selected full scope was implemented and author-reviewed on Linux after the readiness review recorded below. The owner authorized implementation after decisions were settled; release remains separate. Windows/macOS behavior and other evidence remain unverified as recorded in PROOF.
 
-Review reconstruction: user launches an interactive terminal, selects one strategy, sees honest progress and a retained graph/table, returns to menu; bad or absent input is explained, stale/unknown source is acknowledged before use. Existing binary only prints a notice. IA-01..07, the numerical and shared-series contracts now define the selected scope. The author review below assesses readiness; it does not claim implemented behavior.
+Review reconstruction (historical, proposal snapshot): the owner journey was described as launching an interactive terminal, selecting one strategy, seeing honest progress and a retained graph/table, and returning to the menu; bad or absent input was to be explained, and stale/unknown source was to be acknowledged before use. At that snapshot the existing binary only printed a notice. IA-01..07, the numerical and shared-series contracts define the selected scope. The author review below assessed readiness at that snapshot; it did not claim implemented behavior. The current implementation state is recorded in the current state above and in PROOF.
 
 Execution stages after readiness:
 1. Implement approved strategy and source contracts in coherent increments, preserving per-strategy independence.
 2. Integrate through the real terminal entry point and run cross-platform and data tests, then reconcile OpenSpec and PentaPRO.
 3. Prepare release separately; actual release needs its own authorization and platform evidence.
 
-Next: reconcile remaining open points where materially consequential, complete each catalog contract and acceptance tests, author-review the whole scope and reassess before any code.
+Next: the change remains active and unarchived. The owner decides whether to archive it and whether to authorize a release and distribution stage; no new behavior is implemented without a newly authorized change.
 
 
 ## Chronological record
@@ -109,3 +109,5 @@ The owner-authorized single-line header revision is implemented. Linux verificat
 2026-11-16 peer-review follow-up: a source rejected by the background preflight is reported as `falha na verificação`, with the validation reason in the explanation and Enter retrying the load; S17/S20 series declare excluded leading positions; scale-100 formatting is shared; S17/S20 naming, task 7.4 and the design implementation status were corrected; and the explanation-scroll check uses 55×19. Linux fmt, Clippy, 36 Rust tests, 13 Python tests, release build, OpenSpec strict validation, `git diff --check` and pseudo-terminal checks passed. Evidence, limits and current hashes are in [PROOF](../proof/interactive-strategies.md#peer-review-follow-up-closure--2026-11-16). Release, distribution, archive, Windows/macOS, exhaustive malformed-workbook coverage and human accessibility remain separate or unverified.
 
 2026-11-16 final cross-artifact review: PRODUCTION invocation evidence, PROCESS index status and [PROOF traceability](../proof/traceability.md) were reconciled with the committed snapshot. The change remains active and unarchived; release, distribution, Windows/macOS, independent review beyond the recorded auto-reviews and predictive efficacy remain separate.
+
+2026-11-17: the historical "binary only prints a notice" reconstruction was explicitly labeled as a proposal-snapshot record, and the daily updater downloaded a new official workbook validated through contest 1349. Linux checks and a pseudo-terminal parity/S20 journey were rerun on the new snapshot (see [PROOF](../proof/interactive-strategies.md#workbook-refresh-and-revalidation--2026-11-17-contest-1349)). The change remains active and unarchived; release, distribution, archive, Windows/macOS and independent sign-off remain separate.

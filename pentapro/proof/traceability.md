@@ -26,7 +26,8 @@ This map links the current scope to the implementation, checks and evidence reco
 | S08–S12, S18 | Numerical contracts | `src/advanced.rs` | `advanced::tests::independently_derived_composite_measures`; `advanced::tests::grouping_boundaries_and_progress` |
 | S13 | Numerical contracts | `src/history.rs` | `history::tests::separate_cycles_and_incomplete_tail` |
 | S14–S16 | Numerical contracts | `src/history.rs` | `history::tests::exact_rank_endpoints_duplicates_and_changes` |
-| S17, S19–S20 | [Confirmed ranking decisions](../product/interactive-strategies.md#confirmed-ranking-and-dispersion-decisions-s17-s20) | `src/historical.rs` | `historical::tests::prior_only_rank_ties_periodicity_and_coverage` |
+| S17, S20 | [Confirmed ranking decisions](../product/interactive-strategies.md#confirmed-ranking-and-dispersion-decisions-s17-s20) | `src/historical.rs` | `historical::tests::prior_only_rank_ties_periodicity_and_coverage` |
+| S19 | [Numerical contracts](../product/numerical-contracts.md) | `src/historical.rs` | `historical::tests::prior_only_rank_ties_periodicity_and_coverage` |
 | S21–S22 | Numerical contracts | `src/historical.rs` | `historical::tests::missing_prizes_weekdays_and_censored_month_series` |
 | Shared series measures | [Series statistics](../product/series-statistics.md) | `src/series.rs` | `series::tests::*` recorded in [PROOF](interactive-strategies.md) |
 

@@ -27,7 +27,7 @@ O objetivo do ChuteGPT é aplicar processamento numérico, combinatória e técn
 
 ## 🎓 Funcionalidades Principais
 
-A versão em desenvolvimento oferece 22 análises individuais: paridade, repetência, recorrência histórica, sequências adjacentes, maior sequência consecutiva, soma, raiz digital, dispersão das dezenas, espaçamento, decenário, colunas, matriz, ciclos de 27 e 31 dezenas, ordinal, dezenas individuais, mês da sorte, frequência e ausência, distância, média das raízes, dispersão entre frequência e atraso, premiação por dia da semana e séries de mês e premiação.
+A versão em desenvolvimento oferece 22 análises individuais: paridade, repetição, recorrência histórica, sequências adjacentes, maior sequência consecutiva, soma, raiz digital, dispersão das dezenas, espaçamento, decenário, colunas, matriz, ciclos de 27 e 31 dezenas, ordinal, dezenas individuais, mês da sorte, frequência e ausência, distância, média das raízes, dispersão entre frequência e atraso, premiação por dia da semana, séries de mês e premiação.
 
 Os resultados são apresentados em gráficos e tabelas navegáveis, com detalhes estatísticos das séries quando aplicáveis. A aplicação informa o intervalo de concursos, os dados ausentes e o progresso; é possível cancelar o processamento e manter o resultado na tela para análise. Os resultados descrevem o histórico e não garantem ganhos ou a previsão de sorteios futuros.
 
