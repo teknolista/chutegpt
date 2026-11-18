@@ -3,13 +3,16 @@ use std::fs::File;
 use std::io::{Cursor, Read};
 use std::path::{Path, PathBuf};
 
-use calamine::{Data, DataType, Reader, Xlsx, open_workbook_from_rs};
-use chrono::{Local, NaiveDate};
+use calamine::{Data, DataRef, DataType, Reader, Xlsx, open_workbook_from_rs};
+use chrono::{DateTime, Local, NaiveDate, NaiveDateTime};
 use sha2::{Digest, Sha256};
 use zip::ZipArchive;
 
 const MAX_WORKBOOK: u64 = 15 * 1024 * 1024;
 const MAX_UNPACKED: u64 = 50 * 1024 * 1024;
+/// Exclusive upper bound for the `u64` range on the `f64` scale: 2^64.
+const U64_LIMIT: f64 = 18446744073709551616.0;
+const MAX_CELL_TEXT: usize = 64 * 1024;
 const SOURCE: &str = "https://servicebus3.caixa.gov.br/portaldeloterias/api/resultados/download?modalidade=Dia%20de%20Sorte";
 const STATE: &str = ".dia-de-sorte-atualizacao.json";
 const REQUIRED: [&str; 10] = [
@@ -45,6 +48,16 @@ pub struct Draw {
     pub numbers: [u8; 7],
     pub month: u8,
     pub prizes: [Prize; 5],
+}
+
+impl Draw {
+    /// Whether the draw satisfies the invariants the analysis modules assume:
+    /// seven strictly increasing numbers in 1..=31 and a month in 1..=12.
+    pub fn is_valid(&self) -> bool {
+        (1..=12).contains(&self.month)
+            && self.numbers.iter().all(|n| (1..=31).contains(n))
+            && self.numbers.windows(2).all(|w| w[0] < w[1])
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -84,7 +97,9 @@ pub fn workbook_path(explicit: Option<&Path>) -> Result<PathBuf, String> {
         .or_else(|| {
             std::env::var_os("HOME")
                 .filter(|v| !v.is_empty())
-                .map(|v| PathBuf::from(v).join(".local/share"))
+                .map(PathBuf::from)
+                .filter(|v| v.is_absolute())
+                .map(|v| v.join(".local/share"))
         });
     base.map(|v| v.join("ChuteGPT").join("Dia de Sorte-atual.xlsx"))
         .ok_or_else(|| "Diretório de dados indisponível; informe --planilha CAMINHO".into())
@@ -106,11 +121,34 @@ fn read_limited(path: &Path, max: u64) -> Result<Vec<u8>, String> {
     Ok(bytes)
 }
 
+fn drain_bounded<R: Read>(reader: &mut R, remaining: u64) -> Result<u64, String> {
+    let mut buffered = reader.take(remaining.saturating_add(1));
+    let mut written = 0_u64;
+    let mut buffer = [0_u8; 64 * 1024];
+    loop {
+        let read = buffered
+            .read(&mut buffer)
+            .map_err(|e| format!("Planilha corrompida: {e}"))?;
+        if read == 0 {
+            return Ok(written);
+        }
+        written = written
+            .checked_add(read as u64)
+            .ok_or("Planilha excede o limite de descompactação")?;
+        if written > remaining {
+            return Err("Planilha excede o limite de descompactação".into());
+        }
+    }
+}
+
 fn check_zip(bytes: &[u8]) -> Result<(), String> {
     let mut archive =
         ZipArchive::new(Cursor::new(bytes)).map_err(|e| format!("Planilha Excel inválida: {e}"))?;
     let mut names = HashSet::new();
-    let mut total = 0_u64;
+    // The declared total is checked first, but a crafted entry can lie about its
+    // uncompressed size. Count the bytes that are actually inflated as well.
+    let mut declared = 0_u64;
+    let mut actual = 0_u64;
     for i in 0..archive.len() {
         let mut entry = archive
             .by_index(i)
@@ -122,14 +160,16 @@ fn check_zip(bytes: &[u8]) -> Result<(), String> {
         if entry.enclosed_name().is_none() || !names.insert(name) {
             return Err("Planilha contém caminho ZIP inseguro ou entrada duplicada".into());
         }
-        total = total
+        declared = declared
             .checked_add(entry.size())
             .ok_or("Tamanho ZIP excedeu o limite")?;
-        if total > MAX_UNPACKED {
+        if declared > MAX_UNPACKED {
             return Err("Planilha excede o limite de descompactação".into());
         }
-        std::io::copy(&mut entry, &mut std::io::sink())
-            .map_err(|e| format!("Planilha corrompida: {e}"))?;
+        let copied = drain_bounded(&mut entry, MAX_UNPACKED - actual)?;
+        actual = actual
+            .checked_add(copied)
+            .ok_or("Planilha excede o limite de descompactação")?;
     }
     Ok(())
 }
@@ -137,9 +177,7 @@ fn check_zip(bytes: &[u8]) -> Result<(), String> {
 fn integer(cell: &Data) -> Option<u64> {
     match cell {
         Data::Int(v) => u64::try_from(*v).ok(),
-        Data::Float(v)
-            if v.is_finite() && *v >= 0.0 && v.fract() == 0.0 && *v < u64::MAX as f64 =>
-        {
+        Data::Float(v) if v.is_finite() && *v >= 0.0 && v.fract() == 0.0 && *v < U64_LIMIT => {
             Some(*v as u64)
         }
         Data::String(v) => v.trim().parse().ok(),
@@ -150,9 +188,9 @@ fn integer(cell: &Data) -> Option<u64> {
 fn cents(cell: &Data) -> Option<u64> {
     match cell {
         Data::Int(v) => u64::try_from(*v).ok()?.checked_mul(100),
-        Data::Float(v) if v.is_finite() && *v >= 0.0 && *v * 100.0 < u64::MAX as f64 => {
+        Data::Float(v) if v.is_finite() && *v >= 0.0 && *v * 100.0 < U64_LIMIT => {
             let scaled = (*v * 100.0).round();
-            if scaled / 100.0 == *v {
+            if scaled < U64_LIMIT && scaled / 100.0 == *v {
                 Some(scaled as u64)
             } else {
                 None
@@ -244,9 +282,19 @@ fn month(cell: &Data) -> Option<u8> {
 
 fn date(cell: &Data) -> Option<NaiveDate> {
     match cell {
-        Data::String(value) => NaiveDate::parse_from_str(value.trim(), "%d/%m/%Y").ok(),
         Data::DateTime(_) => cell.as_date(),
-        Data::DateTimeIso(value) => NaiveDate::parse_from_str(value, "%Y-%m-%d").ok(),
+        Data::String(value) | Data::DateTimeIso(value) => {
+            NaiveDate::parse_from_str(value.trim(), "%d/%m/%Y")
+                .or_else(|_| NaiveDate::parse_from_str(value.trim(), "%Y-%m-%d"))
+                .or_else(|_| {
+                    NaiveDateTime::parse_from_str(value.trim(), "%Y-%m-%dT%H:%M:%S%.f")
+                        .map(|stamp| stamp.date())
+                })
+                .or_else(|_| {
+                    DateTime::parse_from_rfc3339(value.trim()).map(|stamp| stamp.date_naive())
+                })
+                .ok()
+        }
         _ => None,
     }
 }
@@ -303,6 +351,15 @@ pub fn load(path: &Path) -> Result<Snapshot, String> {
             if row >= 100_000 || col >= 64 {
                 return Err("Planilha possui dimensões acima do limite permitido".into());
             }
+            let text_length = match cell.get_value() {
+                DataRef::String(text) => text.len(),
+                DataRef::SharedString(text) => text.len(),
+                DataRef::DateTimeIso(text) | DataRef::DurationIso(text) => text.len(),
+                _ => 0,
+            };
+            if text_length > MAX_CELL_TEXT {
+                return Err("Planilha possui célula de texto acima do limite permitido".into());
+            }
         }
     }
     {
@@ -348,14 +405,20 @@ pub fn load(path: &Path) -> Result<Snapshot, String> {
     let mut ordered = BTreeMap::new();
     let mut missing = [0_usize; 10];
     let mut empty_row = false;
+    let mut seen_data = false;
     for (offset, row) in rows.enumerate() {
         if row.iter().all(DataType::is_empty) {
-            empty_row = true;
+            // Blank rows before the first data row are spacing, not a hole in
+            // the history. Only a gap between data rows invalidates the sheet.
+            if seen_data {
+                empty_row = true;
+            }
             continue;
         }
         if empty_row {
             return Err("Linha vazia no interior do histórico".into());
         }
+        seen_data = true;
         let row_number = start.0 + 1 + offset as u32;
         let cell = |idx: usize| row.get(idx).unwrap_or(&Data::Empty);
         if required.iter().any(|idx| {
@@ -463,6 +526,19 @@ mod tests {
         assert_eq!(month(&Data::String("Mar&#xE7;o".into())), Some(3));
         assert_eq!(month(&Data::String("Mar&#231;o".into())), Some(3));
         assert_eq!(month(&Data::String("13".into())), None);
+        assert_eq!(integer(&Data::Float(U64_LIMIT)), None);
+        assert_eq!(
+            integer(&Data::Float(U64_LIMIT.next_down())),
+            Some(u64::MAX - 2047)
+        );
+        assert_eq!(integer(&Data::Float(f64::NAN)), None);
+        assert_eq!(cents(&Data::Float(U64_LIMIT / 100.0)), None);
+        assert_eq!(cents(&Data::Int(i64::MAX)), None);
+        assert_eq!(
+            cents(&Data::String("184467440737095516,15".into())),
+            Some(u64::MAX)
+        );
+        assert_eq!(cents(&Data::String("184467440737095516,16".into())), None);
     }
 
     #[test]
@@ -494,9 +570,73 @@ mod tests {
             Freshness::Unknown
         );
         assert_eq!(freshness(Some(b"{"), "abc", 2, today), Freshness::Unknown);
+        let wrong_version = serde_json::json!({"version":3,"source":SOURCE,"sha256":"abc","latest":2,"date":"2026-11-16"});
+        let wrong_version = serde_json::to_vec(&wrong_version).unwrap();
+        assert_eq!(
+            freshness(Some(&wrong_version), "abc", 2, today),
+            Freshness::Unknown
+        );
+        let wrong_types = serde_json::json!({"version":2,"source":1,"sha256":["abc"],"latest":"2","date":20261116});
+        let wrong_types = serde_json::to_vec(&wrong_types).unwrap();
+        assert_eq!(
+            freshness(Some(&wrong_types), "abc", 2, today),
+            Freshness::Unknown
+        );
+        let missing_date =
+            serde_json::json!({"version":2,"source":SOURCE,"sha256":"abc","latest":2});
+        let missing_date = serde_json::to_vec(&missing_date).unwrap();
+        assert_eq!(
+            freshness(Some(&missing_date), "abc", 2, today),
+            Freshness::Unknown
+        );
+    }
+
+    #[test]
+    fn dates_accept_day_month_year_and_iso_variants() {
+        let expected = NaiveDate::from_ymd_opt(2026, 11, 17).unwrap();
+        assert_eq!(date(&Data::String("17/11/2026".into())), Some(expected));
+        assert_eq!(
+            date(&Data::DateTimeIso("2026-11-17".into())),
+            Some(expected)
+        );
+        assert_eq!(
+            date(&Data::DateTimeIso("2026-11-17T00:00:00".into())),
+            Some(expected)
+        );
+        assert_eq!(
+            date(&Data::DateTimeIso("2026-11-17T00:00:00-03:00".into())),
+            Some(expected)
+        );
+        assert_eq!(date(&Data::String("31/02/2026".into())), None);
+        for value in [
+            "2026-11-17",
+            "2026-11-17T01:02:03.456",
+            "2026-11-17T01:02:03.456Z",
+        ] {
+            assert_eq!(date(&Data::String(value.into())), Some(expected));
+            assert_eq!(date(&Data::DateTimeIso(value.into())), Some(expected));
+        }
+    }
+
+    #[test]
+    fn inflated_bytes_are_bounded_independently_of_declared_sizes() {
+        let mut exact = Cursor::new(vec![0_u8; 10]);
+        assert_eq!(drain_bounded(&mut exact, 10).unwrap(), 10);
+        let mut larger = Cursor::new(vec![0_u8; 11]);
+        assert!(drain_bounded(&mut larger, 10).is_err());
+        let mut empty = Cursor::new(Vec::new());
+        assert_eq!(drain_bounded(&mut empty, 10).unwrap(), 0);
     }
 
     fn fixture(row_values: &[&str], omitted_header: Option<usize>) -> PathBuf {
+        fixture_with(row_values, omitted_header, 0)
+    }
+
+    fn fixture_with(
+        row_values: &[&str],
+        omitted_header: Option<usize>,
+        blank_rows: usize,
+    ) -> PathBuf {
         use std::io::Write;
         use std::sync::atomic::{AtomicUsize, Ordering};
         static NEXT: AtomicUsize = AtomicUsize::new(0);
@@ -540,23 +680,80 @@ mod tests {
                 )
             })
             .collect();
+        let data_row = 2 + blank_rows;
+        let blanks: String = (2..data_row)
+            .map(|row| format!("<row r=\"{row}\"/>"))
+            .collect();
         let cells: String = row_values
             .iter()
             .enumerate()
             .map(|(i, v)| {
                 format!(
-                    "<c r=\"{}2\" t=\"inlineStr\"><is><t>{v}</t></is></c>",
+                    "<c r=\"{}{data_row}\" t=\"inlineStr\"><is><t>{v}</t></is></c>",
                     char::from(b'A' + i as u8)
                 )
             })
             .collect();
         let sheet = format!(
-            "<?xml version=\"1.0\"?><worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData><row r=\"1\">{headers}</row><row r=\"2\">{cells}</row></sheetData></worksheet>"
+            "<?xml version=\"1.0\"?><worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData><row r=\"1\">{headers}</row>{blanks}<row r=\"{data_row}\">{cells}</row></sheetData></worksheet>"
         );
         zip.start_file("xl/worksheets/sheet1.xml", options).unwrap();
         zip.write_all(sheet.as_bytes()).unwrap();
         zip.finish().unwrap();
         file
+    }
+
+    #[test]
+    fn leading_empty_rows_are_not_treated_as_history_gaps() {
+        let valid = [
+            "1",
+            "19/05/2018",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "março",
+        ];
+        let path = fixture_with(&valid, None, 2);
+        let data = load(&path).unwrap();
+        assert_eq!(data.draws[0].contest, 1);
+        assert_eq!(data.draws[0].numbers, [1, 2, 3, 4, 5, 6, 7]);
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn iso_text_and_cell_size_boundary_are_checked_in_real_workbooks() {
+        let exact = "x".repeat(MAX_CELL_TEXT);
+        let oversized = "x".repeat(MAX_CELL_TEXT + 1);
+        for (text, accepted) in [(&exact, true), (&oversized, false)] {
+            let values = [
+                "1",
+                "2018-05-19T01:02:03.456",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "março",
+                text,
+            ];
+            let path = fixture(&values, None);
+            let result = load(&path);
+            std::fs::remove_file(path).unwrap();
+            if accepted {
+                assert_eq!(
+                    result.unwrap().draws[0].date,
+                    NaiveDate::from_ymd_opt(2018, 5, 19).unwrap()
+                );
+            } else {
+                assert!(result.unwrap_err().contains("texto acima do limite"));
+            }
+        }
     }
 
     #[test]
@@ -603,22 +800,26 @@ mod tests {
     }
 
     #[test]
-    fn current_official_workbook_loads_and_corrupt_input_fails() {
-        let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-        let path = root.join("docs/Dia de Sorte-atual.xlsx");
+    fn synthetic_workbook_loads_and_official_copy_fails_closed() {
         assert!(check_zip(b"not an xlsx").is_err());
-        assert!(load(&root.join("not-found.xlsx")).is_err());
-        if !path.exists() {
-            eprintln!("Planilha oficial local ausente; teste da cópia real não executado");
-            return;
+        assert!(load(Path::new("not-found.xlsx")).is_err());
+        let official = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/Dia de Sorte-atual.xlsx");
+        crate::test_fixture::with_synthetic_workbook(1_100, |fixture| {
+            let snapshot = load(fixture).expect("synthetic workbook must load");
+            assert_eq!(snapshot.draws.len(), 1_100);
+            assert_eq!(snapshot.draws[0].contest, 1);
+            assert_eq!(snapshot.draws[0].numbers, [1, 2, 3, 4, 5, 6, 7]);
+            assert!(snapshot.draws.iter().all(|draw| draw.is_valid()));
+        });
+        if official.exists() {
+            let snapshot = load(&official).expect("official workbook must load");
+            assert!(snapshot.draws.len() > 1000);
+            assert_eq!(snapshot.draws[0].contest, 1);
+            assert_eq!(snapshot.draws[0].numbers, [3, 5, 8, 9, 19, 21, 30]);
+            assert_eq!(snapshot.draws[0].prizes[0].winners, Some(1));
+            assert_eq!(snapshot.draws[0].prizes[0].cents, Some(95_794_923));
+        } else {
+            eprintln!("Planilha oficial ausente: verificação de valores dourados não executada");
         }
-        let snapshot = load(&path).unwrap();
-        assert!(snapshot.draws.len() > 1000);
-        assert_eq!(snapshot.draws[0].contest, 1);
-        assert_eq!(snapshot.draws[0].numbers, [3, 5, 8, 9, 19, 21, 30]);
-        assert_eq!(snapshot.draws[0].prizes[0].winners, Some(1));
-        assert_eq!(snapshot.draws[0].prizes[0].cents, Some(95_794_923));
-        assert!(check_zip(b"not an xlsx").is_err());
-        assert!(load(&root.join("not-found.xlsx")).is_err());
     }
 }

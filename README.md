@@ -51,13 +51,13 @@ Ainda não há versão distribuída nem procedimento de instalação para usuár
 cargo run -- --planilha "docs/Dia de Sorte-atual.xlsx"
 ```
 
-Use `cargo run -- --help` para consultar a opção disponível. Em um terminal interativo, use **↑/↓** para escolher uma estratégia e **Enter** para executá-la. A descrição da estratégia aparece à direita; use **Page Up/Page Down** ou **H/L** para rolá-la. O nome completo da estratégia e o caminho completo da planilha também aparecem nessa área. O cabeçalho mostra o nome do aplicativo, a fonte e seu estado de verificação na mesma linha: enquanto a verificação inicial em segundo plano não termina, informa que a fonte ainda não foi verificada; depois, mostra o estado real da cópia selecionada. Se o arquivo for lido e rejeitado, o cabeçalho informa **falha na verificação**, o motivo aparece na descrição da estratégia e **Enter** tenta carregar novamente. No resultado, use **Tab/Shift+Tab** para mudar de seção, **←/→** para escolher uma categoria, **S** ou **Enter** para ver os detalhes da série e **↑/↓** para rolar. **Esc** volta à tela anterior ou cancela o processamento; **Q** encerra no menu ou no resultado. A tela de resultados permanece disponível até a navegação. O aplicativo requer um terminal de pelo menos 55 colunas por 19 linhas; abaixo disso, uma mensagem solicita o redimensionamento e preserva o estado, restaurando a visão quando o tamanho voltar ao mínimo.
+Use `cargo run -- --help` para consultar a opção disponível. Em um terminal interativo, use **↑/↓** para escolher uma estratégia e **Enter** para executá-la. A descrição detalhada da estratégia selecionada aparece à direita, em três parágrafos sobre cálculo, dados e seções de resultado; use **Page Up/Page Down** ou **H/L** para rolá-la. O nome completo da estratégia aparece nessa área; o caminho da planilha e o estado de verificação ficam no cabeçalho, sem repetição na descrição. O cabeçalho mostra o nome do aplicativo, a fonte e seu estado de verificação nessa ordem: em uma única linha quando o texto cabe e, em terminais estreitos, quebrado em mais linhas para que o caminho completo permaneça visível. Se o caminho exceder o espaço reservado do cabeçalho, ele informa o limite; pressione **P** para abrir a visualização rolável do caminho completo, use **↑/↓**, **Page Up/Page Down** ou **Home/End** para navegar e **Esc** ou **P** para voltar sem perder a tela atual. Enquanto a verificação inicial em segundo plano não termina, o cabeçalho informa que a fonte ainda não foi verificada; depois, mostra o estado real da cópia selecionada. Se o arquivo for lido e rejeitado, o cabeçalho informa **falha na verificação**, o motivo aparece na descrição da estratégia e **Enter** tenta carregar novamente. No resultado, use **Tab/Shift+Tab** para mudar de seção, **←/→** para escolher uma categoria, **S** ou **Enter** para ver os detalhes da série e **↑/↓** para rolar. Em terminais baixos com cabeçalhos de várias linhas, o gráfico reduz sua altura para manter os detalhes legíveis. **Esc** volta à tela anterior ou cancela o processamento; **Q** encerra no menu ou no resultado. A tela de resultados permanece disponível até a navegação. O aplicativo requer um terminal de pelo menos 55 colunas por 19 linhas; abaixo disso, uma mensagem solicita o redimensionamento e preserva o estado, restaurando a visão quando o tamanho voltar ao mínimo.
 
 O aplicativo lê a planilha local e não faz download ao iniciar. Se o registro de atualização estiver ausente, não corresponder à planilha ou for anterior ao dia local, ele avisa e permite continuar ou voltar. Uma verificação no mesmo dia não garante que um sorteio posterior já tenha sido publicado pela Caixa.
 
 ## 🌐 Personalização
 
-As opções de personalização e configuração ainda serão definidas.
+Além do caminho da planilha, outras opções de personalização e configuração ainda serão definidas.
 
 ### Métodos de configuração
 
@@ -75,7 +75,7 @@ Instale o ambiente Rust com o Cargo e os componentes `rustfmt` e `clippy`. Na ra
 cargo run -- --planilha "docs/Dia de Sorte-atual.xlsx"
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
-cargo test
+cargo test -- --test-threads=1
 cargo build --release
 ```
 

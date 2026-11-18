@@ -2,7 +2,7 @@
 name = "chutegpt"
 version = "0.1.0"
 edition = "2024"
-description = "A cross-platform lottery statistics CLI"
+description = "Interactive historical lottery analysis terminal application"
 
 [dependencies]
 calamine = { version = "=0.38.0", features = ["dates"] }

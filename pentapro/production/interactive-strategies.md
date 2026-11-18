@@ -16,4 +16,6 @@ The implemented Linux menu revision has local pseudo-terminal and automated evid
 
 Historical: the single-line menu-header correction was formerly pending. It is now implemented and checked on Linux; no new installation or release behavior is specified. The startup preflight only reads the selected local workbook and its adjacent sidecar; it does not download or install data. Final evidence and limits are in [PROOF](../proof/interactive-strategies.md#peer-review-follow-up-closure--2026-11-16).
 
-The single-line header correction was exercised on Linux; release and distribution remain separate.
+Current provenance behavior is implemented and exercised on Linux: all supported screens share the source/freshness header, paths wrap within its height budget, and longer paths open a dedicated scrollable view without replacing the active screen. The development invocation, local-data paths and keyboard behavior are in the [root README](../../README.md); current pseudo-terminal and TestBackend evidence is in [PROOF](../proof/interactive-strategies.md#exceptional-selected-path-overflow-view--2026-11-17). No automatic download occurs when the application launches. Installed use, packaging, distribution and release remain unverified and separate.
+
+2026-11-18 final review: result charts now shrink on low terminals with tall headers so the scrollable details retain a readable row. Invocation and data placement are unchanged; current Linux checks are in [final review evidence](../proof/interactive-strategies.md#final-cross-artifact-review--2026-11-18).

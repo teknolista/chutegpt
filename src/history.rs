@@ -3,9 +3,7 @@ use crate::data::Draw;
 const TOTAL: u64 = 2_629_575;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Cancelled;
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum OrdinalError {
+pub enum Error {
     Cancelled,
     InvalidDraw,
 }
@@ -90,6 +88,7 @@ impl Tracker {
         self.first.get_or_insert(draw.contest);
         self.duration += 1;
         for n in draw.numbers {
+            debug_assert!((1..=31).contains(&n), "draw number outside 1..=31");
             self.seen |= 1_u32 << (n - 1);
         }
         if self.seen.count_ones() >= self.threshold {
@@ -119,19 +118,22 @@ impl Tracker {
     }
 }
 
-pub fn cycles<F>(draws: &[Draw], mut progress: F) -> Result<Cycles, Cancelled>
+pub fn cycles<F>(draws: &[Draw], mut progress: F) -> Result<Cycles, Error>
 where
     F: FnMut(usize, usize) -> bool,
 {
     if !progress(0, draws.len()) {
-        return Err(Cancelled);
+        return Err(Error::Cancelled);
     }
     let (mut p, mut f) = (Tracker::new(27), Tracker::new(31));
     for (i, draw) in draws.iter().enumerate() {
+        if !draw.is_valid() {
+            return Err(Error::InvalidDraw);
+        }
         p.add(draw);
         f.add(draw);
         if !progress(i + 1, draws.len()) {
-            return Err(Cancelled);
+            return Err(Error::Cancelled);
         }
     }
     let last = draws.last().map(|d| d.contest);
@@ -141,12 +143,12 @@ where
     })
 }
 
-pub fn ordinals<F>(draws: &[Draw], mut progress: F) -> Result<Ordinals, OrdinalError>
+pub fn ordinals<F>(draws: &[Draw], mut progress: F) -> Result<Ordinals, Error>
 where
     F: FnMut(usize, usize) -> bool,
 {
     if !progress(0, draws.len()) {
-        return Err(OrdinalError::Cancelled);
+        return Err(Error::Cancelled);
     }
     let mut out = Ordinals {
         ranks: Vec::new(),
@@ -155,9 +157,11 @@ where
         change_bands: [0; 10],
     };
     for (i, draw) in draws.iter().enumerate() {
-        // The source adapter enforces this invariant; invalid caller data is not silently ranked.
+        if !draw.is_valid() {
+            return Err(Error::InvalidDraw);
+        }
         let Some(value) = rank(&draw.numbers) else {
-            return Err(OrdinalError::InvalidDraw);
+            return Err(Error::InvalidDraw);
         };
         let band = (10 * (value - 1) / TOTAL) as usize;
         out.bands[band] += 1;
@@ -168,7 +172,7 @@ where
         out.ranks.push(value);
         out.changes.push(change);
         if !progress(i + 1, draws.len()) {
-            return Err(OrdinalError::Cancelled);
+            return Err(Error::Cancelled);
         }
     }
     Ok(out)
@@ -178,17 +182,20 @@ pub fn occurrences<F>(
     draws: &[Draw],
     months: bool,
     mut progress: F,
-) -> Result<Vec<Occurrence>, Cancelled>
+) -> Result<Vec<Occurrence>, Error>
 where
     F: FnMut(usize, usize) -> bool,
 {
     if !progress(0, draws.len()) {
-        return Err(Cancelled);
+        return Err(Error::Cancelled);
     }
     let count = if months { 12 } else { 31 };
     let mut totals = vec![0_usize; count];
     let mut last = vec![None; count];
     for (i, draw) in draws.iter().enumerate() {
+        if !draw.is_valid() {
+            return Err(Error::InvalidDraw);
+        }
         if months {
             let idx = usize::from(draw.month - 1);
             totals[idx] += 1;
@@ -201,7 +208,7 @@ where
             }
         }
         if !progress(i + 1, draws.len()) {
-            return Err(Cancelled);
+            return Err(Error::Cancelled);
         }
     }
     Ok((0..count)
@@ -286,7 +293,29 @@ mod tests {
             (5, 31)
         );
         assert!(c.full.tail.is_none());
-        assert_eq!(cycles(&data, |done, _| done < 2), Err(Cancelled));
+        assert_eq!(cycles(&data, |done, _| done < 2), Err(Error::Cancelled));
         assert!(cycles(&[], |_, _| true).unwrap().full.tail.is_none());
+    }
+    #[test]
+    fn invalid_draws_are_rejected_instead_of_corrupting_cycles_or_counts() {
+        let bad_number = draw(1, [0, 2, 3, 4, 5, 6, 7], 1);
+        let unsorted = draw(2, [2, 1, 3, 4, 5, 6, 7], 1);
+        let bad_month = draw(3, [1, 2, 3, 4, 5, 6, 7], 0);
+        assert_eq!(
+            cycles(std::slice::from_ref(&bad_number), |_, _| true),
+            Err(Error::InvalidDraw)
+        );
+        assert_eq!(
+            cycles(std::slice::from_ref(&unsorted), |_, _| true),
+            Err(Error::InvalidDraw)
+        );
+        assert_eq!(
+            occurrences(&[bad_month], false, |_, _| true),
+            Err(Error::InvalidDraw)
+        );
+        assert_eq!(
+            occurrences(&[bad_number], true, |_, _| true),
+            Err(Error::InvalidDraw)
+        );
     }
 }

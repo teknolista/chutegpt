@@ -187,6 +187,214 @@ Limits: one additional official draw was incorporated and revalidated on Linux; 
 
 ## Test flakiness note — 2026-11-17
 
-Observed on 2026-11-17 during the cross-artifact review: `ui::tests::preflight_updates_menu_status_without_starting_analysis` failed with `assertion failed: app.snapshot.is_some()` when the full 36-test library suite ran in parallel (default `cargo test --offline` with multiple threads). The root cause is contention on the shared `docs/Dia de Sorte-atual.xlsx` workbook: the preflight thread's bounded read can time out when multiple tests concurrently open the same large file. Running with `--test-threads=1` or in isolation passes reliably (36/36). This is a test-harness constraint, not a defect in the analysis or UI logic. Source code and computed results are unaffected.
+Observed on 2026-11-17 during the cross-artifact review: `ui::tests::preflight_updates_menu_status_without_starting_analysis` failed with `assertion failed: app.snapshot.is_some()` when the full library suite ran in parallel (default `cargo test --offline` with multiple threads). The test polls the background preflight for a fixed budget (500 × 10 ms); with several tests reading the same official workbook concurrently, that budget can expire before the message arrives. `data::load` has no timeout. Running with `--test-threads=1` or in isolation passes reliably. This is a test-harness constraint, not a defect in the analysis, loader or UI logic; source code and computed results are unaffected.
 
 Mitigation: use `cargo test --offline -- --test-threads=1` or run the affected test individually for deterministic verification. This constraint is recorded in [decisions](../project/decisions.md) (DEC-6) and in [PROCESS execution](../process/execution.md). The failing assertion verifies only that the preflight populated the snapshot; the downstream behavior (all 22 strategies, freshness display) is correct on the recorded snapshot.
+
+## Header consistency and expanded strategy explanations — 2026-11-17
+
+Tested working-tree snapshot on Linux x86_64; `src/ui.rs` SHA-256 `d439b058a3b9caf63137068b33b2814162a0e339ae8c0f3a694ece5efeecfb59`, `README.md` SHA-256 `4dd70b616a2992e3af88ddabbd50ba27412217e1c1b001ae67cb53dbd60a6e9a`. The selected official workbook remained contest 1349, SHA-256 `b42c0304cde384c2eabfded20eca695e5b094aa3e264854002b1bfee1e57e900`.
+
+- `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test -- --test-threads=1` (37 Rust tests), `cargo run -- --help`, `cargo build --release`, `openspec validate estrategy-create --strict` and `git diff --check` passed.
+- UI TestBackend regressions verify the shared provenance header in menu, loading, working, confirmation, result, series and error states; verify no source path is appended to the menu explanation; and verify all 22 descriptions contain three paragraphs and change with the selected strategy.
+- At both 55×19 and 100×24, keyboard Page Down reaches the final word of each strategy description and selection resets the scroll. The 55×19 case exposed a one-column width mismatch between scroll measurement and the rendered 30/70 pane; scroll measurement now uses Ratatui's same split and interior width.
+
+These are automated TestBackend layout and interaction checks, not a human accessibility assessment or a test of every terminal emulator. They do not establish Windows/macOS support, release readiness or predictive efficacy. The active change remains unarchived.
+
+## Narrow-terminal header path closure — 2026-11-17
+
+Peer-review finding (P2): after the explanation pane stopped repeating `Fonte:`, the selected path became unreachable at narrow widths, because the header truncated its text and the old fallback rendered only `header` plus the freshness status on a second line. The capability specification still required the complete path to be accessible, and PRODUCT/PROJECT still asserted it. This section records the remediation.
+
+Resolution for the path lengths exercised in this review: the owner's decision to keep the explanation free of the source is preserved, and the path is shown in the header when it fits the bounded space. `src/ui.rs` measures the provenance text with Ratatui's own word wrapper at the header's interior width and sizes the header block from that count plus borders, bounded by `area.height - 10` so the body keeps at least eight rows and the key legend two. The single-line layout is retained when the text fits; otherwise the same text wraps within that limit. The previous two-line fallback was removed. Exceptional paths beyond this budget are addressed in the following section.
+
+Executed on Linux x86_64, working tree with `src/ui.rs` SHA-256 `445e9cbd650b39672f453d9675d4bc5354fffb160cacb0561414a65fb53d7c25`, `README.md` `d10a0b55e423655314bbd077c83e5327eac19c6822c54dbfff59a2d6144f4874` and the capability specification `0f4db2cd46c011517bfcabfb9fa0bfc971c9ce98071789bf2efaefc4db54c7fb`; official workbook at contest 1349, SHA-256 `b42c0304cde384c2eabfded20eca695e5b094aa3e264854002b1bfee1e57e900`.
+
+- `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings`, `cargo test --offline -- --test-threads=1` (38 Rust tests), `python3 -m unittest discover -s tests` (13 tests), `cargo build --offline --release`, `openspec validate estrategy-create --strict` and `git diff --check` passed.
+- New TestBackend regression `ui::tests::provenance_header_keeps_the_full_path_visible_on_narrow_terminals` renders a 71-character selected path at 55×19 and 100×24 and asserts that the whole path appears in the header block, that the title is still rendered and that the explanation pane (`Como funciona`) remains visible below it.
+- Linux pseudo-terminal, release binary, `TERM=xterm-256color`, screen reconstructed with the cursor/CSI emulator:
+  - 55×19 with `--planilha /tmp/opencode/uma/pasta/bem/comprida/para/testar/o/cabecalho/ChuteGPT/Dia de Sorte-atual.xlsx`: the header occupied four text lines plus borders and displayed the complete path followed by `Verificada hoje (17/11/2026)`; the strategy list and `Como funciona` pane remained usable.
+  - 55×19 with the repository workbook and a parity result: the three-line header kept the whole path and the result sections rendered normally.
+  - 180×34 with the repository workbook: the header stayed on one line with the full path.
+  - 30×8: the minimum-size message replaced the views, as specified.
+
+Limits: these checks cover TestBackend layout plus one Linux terminal emulator through a reconstructed screen; other terminals, human accessibility, Windows/macOS, release/distribution and predictive efficacy remain unverified. A path whose wrapped header would exceed `area.height - 10` lines is still bounded by that limit, which is far above the lengths exercised here.
+
+## Exceptional selected-path overflow view — 2026-11-17
+
+The owner selected a dedicated scrollable provenance view for paths that exceed the header's reserved height. Acceptance is specified in the active `estrategy-create` capability and task 11. In the tested implementation, the bounded header displays an explicit overflow notice; `P` overlays the complete selected path, vertical scrolling reaches both ends, and `Esc` or `P` returns to the preserved underlying screen. The overlay leaves background progress and completion polling active.
+
+Tested Linux x86_64 working tree based on HEAD `8e40f033e34634015d0272abaaf9de6fe116d259` with existing local changes. Snapshot hashes: `src/ui.rs` `f79fd77d294041e8c7f90bf01243c8d7fede5478560312347d640c0e3ab3e416`; `README.md` `5c269012ee52b16974128821d4e3f48db92558599dc0f5a2f45834971f24b935`; active capability spec `e08a2af98d183c1f9a7cf2cc90dce1d168005a52ffca7a4fdcf3c3c248e33859`; official workbook at contest 1349, SHA-256 `b42c0304cde384c2eabfded20eca695e5b094aa3e264854002b1bfee1e57e900`.
+
+- `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test -- --test-threads=1` (39 Rust tests), `python3 -m unittest discover -s tests` (13 tests), `cargo run -- --help`, `cargo build --release`, `openspec validate estrategy-create --strict` and `git diff --check` passed.
+- TestBackend `ui::tests::oversized_provenance_view_scrolls_and_preserves_processing_state` passed at 55×19 with five 240-character path components. It asserts the overflow notice, access to the first and final path markers after scrolling, and preservation of a `Working` state through progress and completion events while the overlay is open; closing restores the resulting `Result` screen. The existing fitted-path regression still passes at 55×19 and 100×24.
+- Linux pseudo-terminal with the release binary, 55×19: a missing-source path containing the same long components produced the overflow notice; `P` opened the view, the initial page showed `START-OF-PATH`, End exposed `END-OF-PATH.xlsx`, and Esc closed the view. Enter then reached the expected load error from the restored menu; Esc/Q returned and the process exited 0.
+- After reconciling the final PROCESS records and task 11.5, `openspec instructions apply --change "estrategy-create" --json` reported `all_done`, 59/59 tasks complete; `openspec validate estrategy-create --strict` and `git diff --check` passed on the updated documentation snapshot.
+
+Limits: the pseudo-terminal case deliberately used a nonexistent workbook to exercise the UI and error journey; it does not establish a successful read from that extreme path. Evidence covers Linux TestBackend and one Linux pseudo-terminal at 55×19, not other terminal emulators, Windows/macOS, human accessibility, release/distribution or predictive efficacy. `git diff --check` and strict OpenSpec validation were rerun on this working tree; archive and release remain separate.
+
+## PentaPRO alignment audit — 2026-11-17
+
+Scope: compare all PRODUCT, PROJECT, PRODUCTION, PROOF and PROCESS records with the current implementation and its tests; reconcile the root README, PentaPRO navigation, AGENTS, `docs/`, Cargo metadata, both active OpenSpec changes, the preserved historical OpenSpec draft and relevant source/test contracts. Baseline is HEAD `8e40f033e34634015d0272abaaf9de6fe116d259` plus the pre-existing working-tree changes and the documentation corrections in this audit. No application behavior was changed by the audit.
+
+Outcome: the selected Stage 1 behavior is consistent across the implementation and artifacts at the evidence level below. PRODUCT describes observable behavior, domain rules and acceptance without requiring a programming language or framework; Rust, Ratatui/Crossterm, Calamine and module boundaries remain in PROJECT. Historical status entries remain as historical snapshots. README content and section structure were preserved. At the time of this audit `estrategy-create` was complete at 59/59 tasks and `atualizar-resultados-diarios` at 6/6; both remain active and unarchived, and `estrategy-create` later reached 70/70 with the remediation tasks below.
+
+The official CAIXA Dia de Sorte page was checked on 2026-11-17 and its current mechanics, schedule and listed values were recorded in [the reference](../../docs/dia-de-sorte-referencia.md). The Manual v19 PDF endpoint repeatedly redirected to itself and could not be revalidated; manual-specific exceptions remain attributed to the earlier source consultation and are not represented as newly verified. Logo source/redistribution rights and exact SPDX identification remain Pending. This audit does not establish owner acceptance, legal conclusions, human accessibility, installation, other-platform support, predictive efficacy or release readiness.
+
+Checks on Linux x86_64, at the same source/test snapshot: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test -- --test-threads=1` (39 passed), `python3 -m unittest discover -s tests` (13 passed), `cargo build --release`, `cargo run -- --help`, strict validation of both OpenSpec changes, local Markdown/image link-target validation (46 Markdown files) and `git diff --check` passed. The two OpenSpec task counts were 59/59 and 6/6. Link validation checks local target existence, not external links or all heading-anchor semantics.
+
+## Dynamic scroll viewport remediation — 2026-11-17
+
+Peer-review finding (CR-001): static vertical offsets `saturating_sub(8)` in menu/series and `saturating_sub(17)` in results assumed a constant 4-row header. When the provenance header wraps onto 3 or more lines (height 5 or greater on narrow terminals), those static offsets overclamped scroll positions and prevented users from reaching the bottom lines of strategy descriptions and result details.
+
+Resolution: the visible vertical viewports for menu explanation (`menu_explanation_viewport_height`), series details (`series_viewport_height`) and result details (`result_details_viewport_height`) are derived dynamically from `body_area_height(app)`, which accounts for `header_height(&display_header(app, area), area)`. Two new TestBackend regressions (`explanation_scrolling_reaches_end_with_multi_line_header` and `scroll_viewports_adjust_to_dynamic_header_height`) verify complete reachability at 55×19 under a 3-line wrapped header and verify viewport adjustment across narrow and wide layouts.
+
+Executed on Linux x86_64:
+- `cargo fmt --check`: passed.
+- `cargo clippy --all-targets -- -D warnings`: passed.
+- `cargo test -- --test-threads=1`: 41 Rust tests passed (0 failed).
+- `python3 -m unittest discover -s tests`: 13 Python tests passed.
+- `cargo build --release`: passed.
+- `cargo run -- --help`: passed.
+- `openspec validate estrategy-create --strict`: passed.
+- `git diff --check`: passed.
+
+Snapshot hashes (SHA-256):
+
+| Area | File | SHA-256 |
+| --- | --- | --- |
+| Application | `src/main.rs` | `2429794a393fd5871425c0e0764f954ae576934234fea555f1f152e7f0ffa277` |
+| Application | `src/ui.rs` | `f63158c1c3fec3c5bf7eb46e22c1337fbb01cc47d43995676a2d39185fb18acf` |
+| Data and analysis | `src/data.rs` | `adb1fdc74ba97cbec0faa769c51487fbe8aa77c76a1eccc1ad6e336320ba158b` |
+| Data and analysis | `src/analysis.rs` | `327710a187fa31f4f24b4542fe642f95faad76ec7ec79abffc85dfc47e4dfc16` |
+| Data and analysis | `src/advanced.rs` | `243cffc29f85534eb74e1929ad1f1a48c3e724dcc2a138266e0e62f260b2ea2d` |
+| Data and analysis | `src/history.rs` | `2d2d6f3649ab98ff329c7af76b985f199b4e7db5e7da45326b899dd0d33860a9` |
+| Data and analysis | `src/historical.rs` | `911030330f1396f5cd2097750d08b0ddc5ce149aec3897106ba42c85d1abd859` |
+| Data and analysis | `src/series.rs` | `ff7484ad5304373d0255b9315e84b375e25dbcbd968e3418643b31ef1f359fae` |
+| Presentation | `src/presentation.rs` | `64f611027629c9fa91482e1df579e9eea69fa353faeadd95df9f7f99eef13266` |
+| Build metadata | `Cargo.toml` | `41d8ef40faf832515541d53ac13e6dc6b35728f15cb683985f2cff20a410cfbf` |
+| User documentation | `README.md` | `083d437cbfed6bbb859b3a93d723240560a0e9aaefdfe26300f7aa15e75a300b` |
+| User documentation | `docs/dia-de-sorte-referencia.md` | `6ae6c4e429adba17ada3e951647223b6a721899e18ac0aa487a22ce74e9aac0a` |
+| PRODUCT contract | `pentapro/product/interactive-strategies.md` | `d8642a5e1445fbfa1802d6eadc4c5af78c23c14c01c847444fb94fc93f4e1f96` |
+| PROJECT contract | `pentapro/project/interactive-strategies.md` | `69805e6b97427e657ee78b71cb249ea4650aba2b87c0e0dadb262faec3862d1d` |
+| OpenSpec proposal | `openspec/changes/estrategy-create/proposal.md` | `2e982fb54f9af6efa6c4456f9d7ce10ca1b8930dc491101713dcd373b7469552` |
+| OpenSpec capability | `openspec/changes/estrategy-create/specs/interactive-strategy-analysis/spec.md` | `c3ca9929ec382e2481de7635de39a1c0aa1429fd31987f0be4fb40c480a30281` |
+
+## Peer-review robustness remediation — 2026-11-17
+
+Scope: the findings supported by the independent review of the working tree based on HEAD `8e40f033e34634015d0272abaaf9de6fe116d259` plus local changes. No release, archive or publication was performed.
+
+Corrections in `src/data.rs`: declared ZIP sizes are still summed, but the bytes actually inflated are now counted per entry and capped by the same 50 MiB total, so an entry that understates its size cannot bypass the limit; the first streaming pass rejects text cells above 64 KiB and ISO date strings with or without a time component are accepted alongside `DD/MM/YYYY` and Excel dates; wholly empty rows before the first data row are skipped while an empty row between data rows still fails. In the analysis modules, `Draw::is_valid` rechecks the seven-number/month invariants at the public entry points, invalid draws return an explicit error instead of shifting or indexing out of range, the hundredths rounding rule is shared through `src/numeric.rs`, pooled gaps are dispatched by an explicit metric flag, unsupported display scales are marked, and month labels use a checked lookup.
+
+Executed on Linux x86_64 at this snapshot:
+
+- `cargo fmt --check`: passed.
+- `cargo clippy --offline --all-targets -- -D warnings`: passed.
+- `cargo test --offline -- --test-threads=1`: 47 Rust tests passed (0 failed), including new checks for leading blank rows, bounded inflation, ISO date variants, wrong-typed/version-3/missing-date sidecars, invalid draws and unsupported scales.
+- `python3 -m unittest discover -s tests`: 13 Python tests passed.
+- `cargo build --offline --release`: passed.
+- `openspec validate estrategy-create --strict`: passed.
+- `openspec validate atualizar-resultados-diarios --strict`: passed.
+- `git diff --check`: passed.
+- Markdown link and anchor sweep over 167 files: 659 local links resolved, none missing, no broken anchors (external URLs and source-file `#Lnnn` anchors excluded).
+
+Snapshot hashes (SHA-256):
+
+| Area | File | SHA-256 |
+| --- | --- | --- |
+| Application | `src/data.rs` | `d2dbd753cc7ba5eba59eb54c9b1bc3466844b5b5971b431d7fbe3af0c371b367` |
+| Application | `src/numeric.rs` | `d7b74c0e8d2ecfee44f00d3b9fa71d4517e9a89468005d4f5a8d2870ebc6ee2a` |
+| Application | `src/history.rs` | `2c139bec854226a12cecb730893df87160e354030216c07b6f34ff181d410149` |
+| Application | `src/historical.rs` | `a497c63b319a2e4cadf2b03b4d2a368deace9cef30f18b7671191016e2b49107` |
+| Application | `src/advanced.rs` | `17ae24582f75411f207b26633c5726f5f8cbf09de8bef60cb3ad08f0110e02cd` |
+| Application | `src/presentation.rs` | `8df524f8e282193094c4b5c0bc369b11d3a97566a89f3d247f9f461d09da3c2f` |
+| Application | `src/lib.rs` | `586625b16f82dc457ee87a041f5cb85879cd44cf4829bada59fa96a934fcc5ac` |
+| Application | `src/ui.rs` | `f63158c1c3fec3c5bf7eb46e22c1337fbb01cc47d43995676a2d39185fb18acf` |
+| Application | `src/main.rs` | `2429794a393fd5871425c0e0764f954ae576934234fea555f1f152e7f0ffa277` |
+| Application | `src/series.rs` | `ff7484ad5304373d0255b9315e84b375e25dbcbd968e3418643b31ef1f359fae` |
+| Application | `src/analysis.rs` | `327710a187fa31f4f24b4542fe642f95faad76ec7ec79abffc85dfc47e4dfc16` |
+| OpenSpec | `openspec/changes/estrategy-create/tasks.md` | `efdd4136a51ba2ecc8b0693dba25cc841ccd6e2c159b30e7d3ab159eb6a33ed0` |
+| OpenSpec | capability spec | `34c16c096d8ba250f17421b479777109b8fc0f380f06337d3a2de967a88a4332` |
+| PROJECT | `pentapro/project/decisions.md` | `25d7fac1b67bb86b4edfa61049a15eb1e8ec66705f9f1c51036b197b22fb5c4a` |
+| PROJECT | `pentapro/project/architecture.md` | `cc07e26dd8a7e0c95c9dde60d16d9d1c6662fbfe9f0fff15aacce7d17687165d` |
+| PROJECT | `pentapro/project/interactive-strategies.md` | `59a5c1750d07c8b444966e41eb81bb154f26e47ac7a96ffd8539d93432679482` |
+
+Limits: the ZIP defence was verified with a synthetic counting-reader test, not with a hand-crafted archive that lies about its sizes; the per-cell text bound was not exercised with a 64 KiB live workbook. The `Draw` validation changes the public error types of the history/advanced/historical modules, which are exposed through public modules in this development crate; the CLI interface is unchanged. Duplicate interval-censoring logic between `src/series.rs` and `src/historical.rs` remains a maintenance risk to consolidate in a future increment. Linux x86_64 only; Windows/macOS, release, distribution and predictive efficacy remain unverified.
+
+## Review remediation: verification gate hardening — 2026-11-18
+
+Addresses the findings of the same-day peer review of the working tree (HEAD `8e40f03`) plus its uncommitted remediation snapshot.
+
+- `cargo test -- --test-threads=1`: 47 Rust tests passed (0 failed) after the remediation; the eight tests that previously returned early when the gitignored official workbook was absent were converted to always-on synthetic-fixture runs (`src/test_fixture.rs`, `#[cfg(test)]`-only, 2–1100 draws per fixture). The official golden checks (contest 1 == `[3, 5, 8, 9, 19, 21, 30]`, 1000+ contests, winners/cents of the key prize row) run when the local file is present; absence emits a diagnostic visible with `--nocapture` (the normal successful-test harness captures it).
+- `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo build --release`: passed.
+- `python3 -m unittest discover -s tests`: 13 Python tests passed.
+- `openspec validate estrategy-create --strict`: passed after the requirement promotion.
+- The prompt log itself is user-local and ignored; `.gitignore` and `docs/agents-log-policy.md` are shared repository policy artifacts. They were not changed by that remediation.
+
+Snapshot hashes (SHA-256):
+
+| Area | File | SHA-256 |
+| --- | --- | --- |
+| Application | `src/data.rs` | `e8f8324d2d35e037d94dfce18ed12be898ec494dd89244e71355fbbb9c9ed91a` |
+| Application | `src/lib.rs` | `f9afa534f1b147c3347afed127be616f54c0c89bf442afed966c30a63bb9e8ff` |
+| Application | `src/test_fixture.rs` | `f4a1984539a4e992463df336b4a6b574c3288fe31d9c81696c48913cff339e72` |
+| Application | `src/ui.rs` | `1c363daf9dbfa832f727dd71d34ecd8ce66fe01265ed5ea57d4f92826e681194` |
+| Application | `src/presentation.rs` | `da5196bfaf4c242d1d69c843d54f5c41a58f45cdc93ae3a48efec78444146ebd` |
+| OpenSpec | capability spec | `194da86646af90c1546eed7b9537492f305cd90434e7a3f4db7f388a87d8005b` |
+| OpenSpec | `openspec/changes/estrategy-create/tasks.md` | `d8f3552219b58827977e7099f42496ee87674ffc339eda601e655d76ac06de24` |
+
+Limits: the official-workbook golden checks still depend on a local, non-committable copy of `docs/Dia de Sorte-atual.xlsx` (gitignored); fresh clones and any CI without that file get the synthetic gate only and both must pass independently. The synthetic fixture verifies integration contracts and golden rendering, not the official prize-row values. No CI workflow exists in this repository; the gate remains a documented local sequence.
+
+## Final cross-artifact review — 2026-11-18
+
+Scope: the complete unpublished diff and relevant untracked files against HEAD `8e40f033e34634015d0272abaaf9de6fe116d259`, including active `estrategy-create`, source/tests, the daily updater contracts, root README, reference/research files, review/evaluation records, all affected PentaPRO pillars, agent guidance and assets. This session reviewed the earlier implementation and performed its own remediation/re-review; the final fixes have not received a separate independent sign-off. No change was archived and no release was prepared. The owner explicitly requested commit and normal push to the existing `origin/main` destination.
+
+### Findings and resolution
+
+| ID / severity | Confirmed trigger and impact | Resolution and regression |
+| --- | --- | --- |
+| RV-01 / P2, resolved | `src/ui.rs` result layout reserved 2 subtitle + 7 chart rows even when a tall wrapped header left fewer than 12 body rows at 55×19. The bordered detail pane had zero readable rows, so scrolling could not expose results. Introduced by the expanded-header layout; reproduced before the fix with a 120-character path. Earlier viewport tests only checked arithmetic for 4/5-row headers. | Shared `result_areas` shrinks the chart to preserve a detail content row. `result_details_remain_readable_under_tall_headers` asserts a final rendered marker for paths of 120/180/240/300/400 characters. The reproducer failed before correction and passes afterwards. |
+| RV-02 / P2, resolved | Task 13.5 and DEC-9 claimed validation at public analysis entry points, but `analysis::calculate` still accepted malformed draws (unsorted adjacency could panic), and `history::ordinals` ignored an invalid month. These were pre-existing API gaps missed by the hardening scope; the CLI loader already rejected invalid source draws. | Both entry points reject invalid draws. `every_strategy_rejects_invalid_public_draws` checks all 22 presentation routes with zero/out-of-range, unsorted and duplicate numbers and months 0/13; simple-analysis cancellation retains its separate error. Public Rust error types change within this development crate; CLI arguments are unchanged. |
+| RV-03 / P2, resolved | The input contract accepted ISO date strings with time, but `data::date` rejected ISO text cells and fractional local date-times. A valid XLSX text date could fail required-data loading. The earlier ISO extension only handled a subset of native ISO cells. | ISO text/native date cells accept date-only, local time with optional fractions, and RFC 3339 offset forms. Direct date cases and a real XLSX integration fixture pass. Numeric boundary assertions also cover exact 2^64 rejection, the last representable lower integer, maximum textual centavos/overflow and signed hundredths limits. The XLSX test also proves the 65,536-byte text-cell boundary is inclusive and 65,537 is rejected, closing the earlier unexercised text-bound gap. |
+| RV-04 / P2, resolved | Current proposal/index/reconciliation counts lagged behind tasks; traceability named a removed test; architecture claimed nonexistent root re-exports/types and placed expanded explanations in the wrong module; evidence miscounted fixture migrations and implied a nonexistent remediation commit. The prompt policy omitted shared CLAUDE/policy files. These inconsistencies undermined review and resumption. | Current records now report 79/79 tasks, actual module/test names, eight migrated tests and uncommitted historical snapshots. README sections are preserved; the blank ticket and future roadmap are inventoried without claiming current rules or generation implementation. Historical evidence remains tied to its original snapshots. |
+
+### Executed checks
+
+Linux x86_64, rustc/Cargo 1.100.0, final source snapshot below:
+
+- `python3 scripts/atualizar_resultados.py`: same-day skip; the existing validated copy reaches contest 1350. No second download or later same-day publication check was performed.
+- `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`: passed.
+- `cargo test -- --test-threads=1`: 50 Rust tests passed, including the official-copy golden checks.
+- `cargo test -- --test-threads=1 --nocapture` with the official workbook temporarily unavailable at its actual expected path: all 50 tests passed and the expected missing-official-copy diagnostic was observed. The workbook was restored in a `finally` block and its SHA-256 verified unchanged. This directly verifies the synthetic gate without the ignored workbook; it does not verify official prize values in a fresh clone.
+- `python3 -m unittest discover -s tests`: 13 Python tests passed.
+- `cargo build --release` and `cargo run -- --help`: passed.
+- Both active changes pass `openspec validate <change> --strict`; the interactive apply status reports all 79 tasks complete after reconciliation.
+- Release binary in a Linux pseudo-terminal (`TERM=xterm-256color`), official contest-1350 workbook through a 161-character selected path: 55×19 menu/preflight/result, scrolling to the final detail line, P overlay/close, resize to 30×10 and back, menu/quit and terminal-attribute/alternate-screen restoration passed. ANSI cursor updates were reconstructed to check the visible final detail line, rather than searching the raw incremental byte stream.
+- Local Markdown targets/anchors (50 files, 361 local targets/anchors), candidate-path credential-pattern scan and `git diff --check`: passed. Scan scope is repository Markdown files (excluding ignored agent packages) and all 45 candidate publishable paths; no prompt log is selected. This is a bounded pattern scan, not a comprehensive security audit.
+- The current CAIXA page was rechecked on 2026-11-18; listed mechanics/prices/schedule agree with the reference. The Manual v19 and historical rule effectiveness were not revalidated in this pass.
+
+### Snapshot
+
+SHA-256 of the final source, data and key contracts (historical hashes above retain their original scope):
+
+| File | SHA-256 |
+| --- | --- |
+| `src/advanced.rs` | `17ae24582f75411f207b26633c5726f5f8cbf09de8bef60cb3ad08f0110e02cd` |
+| `src/analysis.rs` | `dc1373634f1cfc1addd2e618687a9126987b59443646479990c8eca3d28c72ee` |
+| `src/data.rs` | `698477b37a02180b341160b88ba24d0e530af1dc0c9f3117a101c024f8972bb2` |
+| `src/historical.rs` | `a497c63b319a2e4cadf2b03b4d2a368deace9cef30f18b7671191016e2b49107` |
+| `src/history.rs` | `e4f69bebe7d4e2339110f16037b7d59c0553d4640d4d90fb7931d7729f56fddd` |
+| `src/lib.rs` | `f9afa534f1b147c3347afed127be616f54c0c89bf442afed966c30a63bb9e8ff` |
+| `src/main.rs` | `2429794a393fd5871425c0e0764f954ae576934234fea555f1f152e7f0ffa277` |
+| `src/numeric.rs` | `401d394f53f4279856964e8ea2b96049872e5fa29939b59dddcc4ebb2c620893` |
+| `src/presentation.rs` | `881b4ee1267fba4fa76c5e16a5a4ea09b0cb593448047eee004d45b4bdde2d44` |
+| `src/series.rs` | `ff7484ad5304373d0255b9315e84b375e25dbcbd968e3418643b31ef1f359fae` |
+| `src/test_fixture.rs` | `f4a1984539a4e992463df336b4a6b574c3288fe31d9c81696c48913cff339e72` |
+| `src/ui.rs` | `a75eba4180e7659929b57464ad1691f9b06e051b3b79bde375066d45ed5ca576` |
+| `Cargo.toml` | `41d8ef40faf832515541d53ac13e6dc6b35728f15cb683985f2cff20a410cfbf` |
+| `Cargo.lock` | `c706b4158fa8e499c27c6a5602a782ab00d496a6e3d732d0cf449f64390c0e51` |
+| `README.md` | `9743351fb8fd632ba2c24857487aff77aa18deaa045b8b14680a01ced26afec9` |
+| `docs/dia-de-sorte-referencia.md` | `267bb703b2362bee77c41271e56555cd47a0753b1d95eeadeaebd1fd7f43f992` |
+| `docs/Dia de Sorte-atual.xlsx` | `f80d8c3e71f7cda4a3c7061cc3009fa7b24226b6d355dd6770560d01e1182eab` |
+| `openspec/changes/estrategy-create/specs/interactive-strategy-analysis/spec.md` | `43e2038362d41a3461ef962ef85c0365e3990a2e9eac647f4db5a34e3c56df23` |
+
+Verdict: **No blocking findings after remediation and focused re-review** within this scope. Missing evidence remains explicit: no CI workflow, independent sign-off on the final fixes, exhaustive malformed-XLSX equivalence, full historical rule verification, human accessibility/usability acceptance, installed distribution, other platforms or predictive performance. The earlier forged-ZIP coverage remains a counting-reader check rather than a crafted lying archive. The prompt-capture plugin is user-local and its historical OpenCode tests were not rerun by this Codex session; manual append and Git exclusion were verified here. Logo/ticket origin and redistribution terms remain Pending. None of these records constitutes release or archive acceptance.

@@ -6,6 +6,7 @@ use std::collections::BTreeMap;
 pub enum Error {
     Cancelled,
     Numeric,
+    InvalidDraw,
 }
 #[derive(Debug, Clone, PartialEq)]
 pub struct HistoricalRow {
@@ -52,13 +53,16 @@ pub struct PrizeMonths {
     pub principal: EventSeries,
 }
 
-fn round100(x: f64) -> Result<i64, Error> {
-    let x = (x * 100.0).round_ties_even();
-    if !x.is_finite() || x < i64::MIN as f64 || x >= i64::MAX as f64 {
-        Err(Error::Numeric)
+fn validate(draws: &[Draw]) -> Result<(), Error> {
+    if draws.iter().all(Draw::is_valid) {
+        Ok(())
     } else {
-        Ok(x as i64)
+        Err(Error::InvalidDraw)
     }
+}
+
+fn round100(x: f64) -> Result<i64, Error> {
+    crate::numeric::scaled100(x).ok_or(Error::Numeric)
 }
 fn measures(v: &[u64]) -> Result<Option<[Option<i64>; 7]>, Error> {
     if v.is_empty() {
@@ -104,6 +108,7 @@ pub fn frequency_and_delay<F>(draws: &[Draw], mut progress: F) -> Result<Vec<His
 where
     F: FnMut(usize, usize) -> bool,
 {
+    validate(draws)?;
     if !progress(0, draws.len()) {
         return Err(Error::Cancelled);
     }
@@ -205,6 +210,7 @@ pub fn mean_of_roots<F>(draws: &[Draw], mut progress: F) -> Result<Vec<u64>, Err
 where
     F: FnMut(usize, usize) -> bool,
 {
+    validate(draws)?;
     if !progress(0, draws.len()) {
         return Err(Error::Cancelled);
     }
@@ -232,6 +238,7 @@ pub fn weekly<F>(draws: &[Draw], mut progress: F) -> Result<Weekly, Error>
 where
     F: FnMut(usize, usize) -> bool,
 {
+    validate(draws)?;
     if !progress(0, draws.len()) {
         return Err(Error::Cancelled);
     }
@@ -303,6 +310,7 @@ pub fn prize_months<F>(draws: &[Draw], mut progress: F) -> Result<PrizeMonths, E
 where
     F: FnMut(usize, usize) -> bool,
 {
+    validate(draws)?;
     if !progress(0, draws.len()) {
         return Err(Error::Cancelled);
     }

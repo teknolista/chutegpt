@@ -109,15 +109,26 @@ fn text(title: impl Into<String>, lines: Vec<String>) -> Section {
 fn cast(v: u64) -> Result<i64, String> {
     i64::try_from(v).map_err(|_| "Valor numérico excede o limite".into())
 }
-/// Render a scaled integer. Scale 100 always shows two decimals and keeps the sign.
+/// Render a scaled integer. Scale 1 means counts and scale 100 means stored
+/// hundredths; no other scale exists in the analysis model. An unsupported
+/// scale is marked instead of silently printing a raw scaled integer.
 pub fn format_value(v: i64, scale: i64) -> String {
-    if scale == 100 {
-        let sign = if v < 0 { "-" } else { "" };
-        let magnitude = v.unsigned_abs();
-        format!("{sign}{}.{:02}", magnitude / 100, magnitude % 100)
-    } else {
-        v.to_string()
+    match scale {
+        1 => v.to_string(),
+        100 => {
+            let sign = if v < 0 { "-" } else { "" };
+            let magnitude = v.unsigned_abs();
+            format!("{sign}{}.{:02}", magnitude / 100, magnitude % 100)
+        }
+        _ => format!("{v} [escala não suportada: {scale}]"),
     }
+}
+fn month_name(category: u8) -> &'static str {
+    usize::from(category)
+        .checked_sub(1)
+        .and_then(|index| MONTHS.get(index))
+        .copied()
+        .unwrap_or("Mês desconhecido")
 }
 fn ordinal(name: &str, values: Vec<Option<u64>>) -> Result<Section, String> {
     Ok(discrete(
@@ -141,10 +152,9 @@ fn add_advanced(out: &mut Vec<Section>, result: advanced::ResultSet, index: usiz
         ));
     }
     for m in result.metrics {
+        let pooled = m.pooled;
         let mut section = discrete(m.name, m.values, i64::from(m.scale));
-        if section.title != "Espaçamentos agrupados"
-            && let Some(values) = &section.values
-        {
+        if !pooled && let Some(values) = &section.values {
             section.lines = draws
                 .iter()
                 .zip(values)
@@ -155,7 +165,7 @@ fn add_advanced(out: &mut Vec<Section>, result: advanced::ResultSet, index: usiz
                 })
                 .collect();
         }
-        if section.title == "Espaçamentos agrupados" {
+        if pooled {
             section.values = None;
             pad(&mut section, 1..=25);
         } else if index == 9 || index == 10 {
@@ -171,6 +181,12 @@ fn add_advanced(out: &mut Vec<Section>, result: advanced::ResultSet, index: usiz
             pad(&mut section, 6..=30);
         }
         out.push(section);
+    }
+}
+fn history_error(error: history::Error) -> String {
+    match error {
+        history::Error::Cancelled => "Cancelado".into(),
+        history::Error::InvalidDraw => "Concurso inválido na planilha".into(),
     }
 }
 fn map_simple(index: usize) -> analysis::Strategy {
@@ -208,8 +224,13 @@ where
     let mut sections = Vec::new();
     match index {
         0..=6 => {
-            let h = analysis::calculate(draws, map_simple(index), &mut progress)
-                .map_err(|_| "Cancelado".to_string())?;
+            let h =
+                analysis::calculate(draws, map_simple(index), &mut progress).map_err(|error| {
+                    match error {
+                        analysis::Error::Cancelled => "Cancelado".to_string(),
+                        analysis::Error::InvalidDraw => "Concurso inválido na planilha".to_string(),
+                    }
+                })?;
             let mut sec = discrete(
                 h.title,
                 h.observations
@@ -235,8 +256,7 @@ where
             add_advanced(&mut sections, result, index, draws);
         }
         12 => {
-            let result =
-                history::cycles(draws, &mut progress).map_err(|_| "Cancelado".to_string())?;
+            let result = history::cycles(draws, &mut progress).map_err(history_error)?;
             for cycle in [result.partial, result.full] {
                 let mut sec = discrete(
                     format!(
@@ -271,8 +291,7 @@ where
             }
         }
         13 => {
-            let x = history::ordinals(draws, &mut progress)
-                .map_err(|e| format!("Falha no ordinal: {e:?}"))?;
+            let x = history::ordinals(draws, &mut progress).map_err(history_error)?;
             let ranks = x
                 .ranks
                 .iter()
@@ -320,8 +339,7 @@ where
         }
         14 | 15 => {
             let months = index == 15;
-            let x = history::occurrences(draws, months, &mut progress)
-                .map_err(|_| "Cancelado".to_string())?;
+            let x = history::occurrences(draws, months, &mut progress).map_err(history_error)?;
             let mut summary = text("Ocorrências e atrasos atuais", Vec::new());
             summary.bins = x.iter().map(|v| (i64::from(v.category), v.count)).collect();
             summary.lines = x
@@ -330,7 +348,7 @@ where
                     format!(
                         "{}: {} ocorrências; atraso {}",
                         if months {
-                            MONTHS[usize::from(v.category - 1)].to_string()
+                            month_name(v.category).to_string()
                         } else {
                             format!("{:02}", v.category)
                         },
@@ -356,7 +374,7 @@ where
                     format!(
                         "Série {} — 0 ausente / 1 presente",
                         if months {
-                            MONTHS[usize::from(v.category - 1)].to_string()
+                            month_name(v.category).to_string()
                         } else {
                             format!("{:02}", v.category)
                         }
@@ -493,6 +511,8 @@ where
                     let avg_c = if c.known_rates == 0 {
                         "indisponível".into()
                     } else {
+                        // The mean prize is rounded half-to-even to whole cents,
+                        // the same convention used by the other rounded measures.
                         format!(
                             "R$ {:.2}",
                             (c.rate_sum_cents as f64 / c.known_rates as f64).round_ties_even()
@@ -576,7 +596,50 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::Path;
+    #[test]
+    fn every_strategy_rejects_invalid_public_draws() {
+        let valid = Draw {
+            contest: 1,
+            date: chrono::NaiveDate::from_ymd_opt(2018, 5, 19).unwrap(),
+            numbers: [1, 2, 3, 4, 5, 6, 7],
+            month: 1,
+            prizes: std::array::from_fn(|_| crate::data::Prize {
+                winners: None,
+                cents: None,
+            }),
+        };
+        let mut cases = Vec::new();
+        for numbers in [
+            [0, 2, 3, 4, 5, 6, 7],
+            [1, 2, 3, 4, 5, 6, 32],
+            [2, 1, 3, 4, 5, 6, 7],
+            [1, 1, 3, 4, 5, 6, 7],
+        ] {
+            let mut draw = valid.clone();
+            draw.numbers = numbers;
+            cases.push(draw);
+        }
+        for month in [0, 13] {
+            let mut draw = valid.clone();
+            draw.month = month;
+            cases.push(draw);
+        }
+        for draw in cases {
+            for index in 0..STRATEGIES.len() {
+                let error = build(index, std::slice::from_ref(&draw), |_, _| true).unwrap_err();
+                assert!(
+                    error.contains("inválido") || error.contains("InvalidDraw"),
+                    "strategy {index}: {error}"
+                );
+            }
+        }
+        for index in 0..=6 {
+            assert_eq!(
+                build(index, std::slice::from_ref(&valid), |_, _| false).unwrap_err(),
+                "Cancelado"
+            );
+        }
+    }
     #[test]
     fn result_views_include_zero_bins_and_wait_histograms() {
         use crate::data::Prize;
@@ -649,20 +712,17 @@ mod tests {
 
     #[test]
     fn pooled_gaps_do_not_claim_per_draw_values() {
-        let path =
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/Dia de Sorte-atual.xlsx");
-        if !path.exists() {
-            return;
-        }
-        let snapshot = crate::data::load(&path).unwrap();
-        let view = build(8, &snapshot.draws[..2], |_, _| true).unwrap();
-        let section = view
-            .sections
-            .iter()
-            .find(|s| s.title == "Espaçamentos agrupados")
-            .unwrap();
-        assert!(section.lines.is_empty());
-        assert_eq!(section.bins.values().sum::<usize>(), 12);
+        crate::test_fixture::with_synthetic_workbook(2, |fixture| {
+            let snapshot = crate::data::load(fixture).expect("synthetic workbook must load");
+            let view = build(8, &snapshot.draws, |_, _| true).unwrap();
+            let section = view
+                .sections
+                .iter()
+                .find(|s| s.title == "Espaçamentos agrupados")
+                .unwrap();
+            assert!(section.lines.is_empty());
+            assert_eq!(section.bins.values().sum::<usize>(), 12);
+        });
     }
     #[test]
     fn scaled_values_keep_their_sign() {
@@ -672,21 +732,20 @@ mod tests {
         assert_eq!(format_value(125, 100), "1.25");
         assert_eq!(format_value(-5, 1), "-5");
         assert_eq!(format_value(5, 1), "5");
+        assert_eq!(format_value(1234, 10), "1234 [escala não suportada: 10]");
     }
 
     #[test]
-    fn every_strategy_builds_from_current_official_snapshot() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/Dia de Sorte-atual.xlsx");
-        if !path.exists() {
-            eprintln!("Planilha oficial local ausente; teste de estratégias não executado");
-            return;
-        }
-        let snapshot = crate::data::load(&path).unwrap();
-        for (i, name) in STRATEGIES.iter().enumerate() {
-            let result =
-                build(i, &snapshot.draws, |_, _| true).unwrap_or_else(|e| panic!("{name}: {e}"));
-            assert_eq!(result.title, *name);
-            assert!(!result.sections.is_empty(), "{name}");
-        }
+    fn every_strategy_builds_from_a_synthetic_snapshot() {
+        crate::test_fixture::with_synthetic_workbook(24, |fixture| {
+            let snapshot = crate::data::load(fixture).expect("synthetic workbook must load");
+            assert_eq!(snapshot.draws.len(), 24);
+            for (i, name) in STRATEGIES.iter().enumerate() {
+                let result = build(i, &snapshot.draws, |_, _| true)
+                    .unwrap_or_else(|e| panic!("{name}: {e}"));
+                assert_eq!(result.title, *name);
+                assert!(!result.sections.is_empty(), "{name}");
+            }
+        });
     }
 }

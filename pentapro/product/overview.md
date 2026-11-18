@@ -1,6 +1,11 @@
 # Product overview
 
-ChuteGPT is intended as a terminal application in Rust for lottery statistics, initially Caixa's Dia de Sorte, on Linux desktop (owner scope change; Windows and macOS deferred to a possible future stage). The current interactive historical-analysis increment implements individual strategies over a local official workbook; the journey and outcomes are specified in [interactive analysis](interactive-strategies.md). Candidate generation, simulations and release are separate future scope. Target-platform and user-value validation remain pending.
+ChuteGPT is a terminal application for exploring historical results of Caixa's Dia de Sorte. The owner-confirmed long-term goal is to apply numerical, combinatorial and statistical methods to historical draws, identify patterns and investigate whether any approach can estimate future draws accurately. This is a research goal, not evidence that historical patterns predict future results.
 
+## Current product scope
 
-The product goal, stated by the owner, is to apply numerical, combinatorial, and statistical processing to previous Dia de Sorte draws, identify patterns in the drawn numbers, and investigate estimating the next result as accurately as possible. Analyses should use the latest available official Caixa results and evaluate strategies using historical data and appropriate validation. Individual features, algorithms, prediction metrics, and acceptance criteria remain to be specified.
+The implemented Stage 1 experience loads a selected local workbook and offers 22 individually selected descriptive historical analyses. It presents labeled results, sample context, progress, cancellation and keyboard navigation in Brazilian Portuguese. Its observable behavior and strategy contracts are specified in [interactive analysis](interactive-strategies.md), [numerical contracts](numerical-contracts.md) and [series statistics](series-statistics.md); implementation evidence and limits are in [PROOF](../proof/interactive-strategies.md).
+
+The application does not currently generate bets or candidates, combine strategies, simulate returns, or claim predictive advantage. Predictive evaluation, user-value validation, distribution and release remain separate and unverified. Linux desktop is the target of this stage; Windows and macOS are deferred to a possible future stage.
+
+The PRODUCT contracts describe user-visible behavior and domain rules independently of programming language or framework. Selected implementation technologies and architecture belong in PROJECT. Lottery rules, their dates and source limitations are documented in [the Dia de Sorte reference](../../docs/dia-de-sorte-referencia.md).

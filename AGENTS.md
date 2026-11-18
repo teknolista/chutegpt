@@ -4,11 +4,23 @@ ChuteGPT is a Rust terminal application intended for Linux desktop terminals; Wi
 
 The product goal is to analyze historical Dia de Sorte draws using numerical, combinatorial, and statistical methods to identify patterns and investigate ways to estimate the next draw as accurately as possible. Use the latest available official Caixa results and evaluate strategies against historical data. Keep future development aligned with this goal.
 
+## Prompt logging (mandatory)
+
+Every user prompt handled in this repository MUST be appended verbatim to the local `AGENTS.log` at the repository root, before the model request that acts on it. The log is not versioned: `.gitignore` excludes it, and it is never committed or published. Never paste secrets or personal data into a prompt; if sensitive content arrives anyway, replace it with `[REDACTED]` before logging.
+
+- The OpenCode user-level plugin (`~/.config/opencode/plugins/agents-log.ts`) normally captures prompts automatically, but it logs the session from the directory where the session is opened: sessions opened in another project write to that project's `AGENTS.log`, not this one. Work from this repository only if this file's entry for the prompt exists; otherwise append it manually first. Never duplicate an entry the plugin already wrote.
+- On any other harness, appending is the first action of the session: heading `## <RFC 5322 date-time> | <provider/model> (<agent>)`, then the prompt text unchanged with its spacing and line breaks, then one blank line.
+- Append only; never rewrite, reorder or delete existing entries.
+- If the append fails, stop the work, report the failure, fix the logging and backfill the missing prompt before continuing.
+
+The full rule, redaction patterns, concurrency behavior, known limits and the manual fallback are in `docs/agents-log-policy.md`.
+
 ## Sources and workflow
 
 - At the start of each local day when working on this repository, run `python3 scripts/atualizar_resultados.py` on Linux. Run it before work that depends on contest data and use the validated `docs/Dia de Sorte-atual.xlsx`. The script skips a repeat download after a successful update on the same local date. Use `--force` to check again after a draw. If the update fails, report the failure and identify any prior copy used as potentially stale.
 
 - Start with `pentapro/process/index.md`, then read the affected records across `pentapro/`. `pentapro/` maintains the project specification; `openspec/` owns active changes, scenarios and tasks. Resolve disagreements explicitly.
+- Keep PRODUCT requirements and acceptance language- and framework-agnostic so they can guide an alternative implementation. Put the selected implementation language, libraries, modules and architecture in PROJECT; do not make current source structure a product requirement.
 - Every addition or modification, including documentation, tooling and instructions, must be reflected in the relevant `pentapro/` records. Update the owning facts, cross-references, check plans and PROCESS state as applicable; note evidence against the actual tested snapshot. Avoid copying full contents or claiming unrun checks. For an active OpenSpec change, link it and reconcile the baseline when settled or archived. Record incomplete reconciliation and the next action.
 - For material behavior changes, establish the scope, scenarios, constraints and checks in OpenSpec and relevant PentaPRO records before implementation. User authorization for implementation remains effective; a specification alone does not authorize implementation or release. Preserve unresolved decisions as pending.
 - Preserve all root `README.md` content and sections. Add, adjust and update content as project behavior, usage or other facts become known, in Brazilian Portuguese; mark unresolved details as pending and distinguish plans from implemented behavior. Do not remove README content or sections without the user’s explicit authorization. At final delivery, ask the user before removing any section that remains unfilled.

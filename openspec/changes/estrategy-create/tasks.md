@@ -78,3 +78,58 @@
 - [x] 8.4 Correct the S17/S19 naming in task 7.4 to S17/S20, matching the implemented strategy indices.
 - [x] 8.5 Record the implemented path/freshness selection and the preflight failure state in the design document.
 - [x] 8.6 Exercise explanation scrolling at the minimum supported terminal size (55×19) and assert that the last explanation line is reachable.
+
+## 9. Header consistency across screens, description expansion and explanation pane cleanup
+
+- [x] 9.1 Render the uniform provenance header `ChuteGPT — Análise Histórica Descritiva | Fonte: <selected path> | <freshness status>` across all strategy screens (result views, category series details, progress, and warning screens), eliminating the legacy fallback `ChuteGPT — análise histórica descritiva`.
+- [x] 9.2 Remove the redundant `Fonte: <selected path>` text from the main-menu strategy explanation pane, keeping only the strategy title, calculation explanation, and preflight validation failure details when applicable.
+- [x] 9.3 Author exactly three Portuguese paragraphs for all 22 strategies: a concise definition followed by detailed calculation, input/population, eligibility, strictly-prior rules where applicable, and resulting distribution/sections.
+- [x] 9.4 Add and update automated tests verifying the uniform header across all screens, absence of redundant "Fonte:" in the explanation pane, and presence and keyboard-scrollability of the expanded multi-paragraph descriptions for all 22 strategies at supported terminal sizes (including 55×19).
+- [x] 9.5 Reconcile affected PentaPRO records (PRODUCT, PROJECT, PROOF, PROCESS) and root README.md after implementation and verification. Keep the change unarchived until explicitly authorized.
+
+## 10. Peer-review remediation: narrow-terminal header path (2026-11-17)
+
+- [x] 10.1 Decide the narrow-terminal requirement: keep the complete selected path visible instead of relying on the explanation pane, which no longer repeats the source.
+- [x] 10.2 Wrap the provenance header onto additional lines measured with Ratatui's word wrapper, bounded so the body keeps at least eight rows and the key legend two, and remove the previous two-line fallback that repeated only the freshness status.
+- [x] 10.3 Add a TestBackend regression at 55×19 and 100×24 asserting that a long selected path is rendered in full and that the menu body and explanation title stay usable; exercise the same case in a Linux pseudo-terminal.
+- [x] 10.4 Reconcile the capability specification, design, README, PRODUCT, PROJECT, PROOF and PROCESS records, and correct the DEC-6 mechanism description.
+
+## 11. Exceptional selected-path overflow access (2026-11-17)
+
+- [x] 11.1 Specify the owner-selected behavior for paths exceeding the bounded header: an explicit header notice and a dedicated scrollable provenance view that preserves the underlying screen state.
+- [x] 11.2 Implement keyboard access to the full selected path when it cannot fit in the reserved header height; preserve menu, result, warning, error and in-progress processing state while the view is open.
+- [x] 11.3 Add TestBackend regressions at the minimum supported size for a path beyond the header budget, including a long path component, complete beginning/end access by scrolling, overflow notice, unchanged fitting-path header, and return to the same underlying screen state.
+- [x] 11.4 Exercise the overflow path in a Linux pseudo-terminal, then run targeted UI tests and the required Linux checks plus strict OpenSpec validation; record tested snapshot evidence and limits.
+- [x] 11.5 Reconcile PRODUCT, PROJECT, PROOF, PROCESS, README and traceability with the implemented behavior and actual verification evidence; keep the change unarchived.
+
+## 12. Dynamic scroll viewport remediation (2026-11-17)
+
+- [x] 12.1 Derive the visible scrolling viewport dynamically from `header_height` and screen layout for menu explanation, series details and result values in `src/ui.rs`, replacing the static `saturating_sub(8)` and `saturating_sub(17)` offsets.
+- [x] 12.2 Add regression tests verifying that explanation scrolling reaches the final word at 55×19 when the selected path wraps to 3 or more header lines, and that result details scrolling adjusts to dynamic header heights.
+- [x] 12.3 Reconcile affected PentaPRO records (PRODUCT, PROJECT, PROOF, PROCESS) and OpenSpec artifacts with the tested revision.
+
+## 13. Peer-review robustness remediation (2026-11-17)
+
+- [x] 13.1 Bound the bytes actually inflated per ZIP entry in addition to the declared uncompressed total, rejecting entries that understate their size.
+- [x] 13.2 Reject text cells above 64 KiB before Calamine materializes the dense worksheet range.
+- [x] 13.3 Treat wholly empty rows before the first data row as spacing while still rejecting an empty row between data rows.
+- [x] 13.4 Accept ISO 8601 date strings with and without a time component, in addition to `DD/MM/YYYY` text and Excel date cells.
+- [x] 13.5 Recheck draw invariants at the analysis entry points and reject invalid `Draw` values instead of shifting or indexing out of range.
+- [x] 13.6 Consolidate the hundredths rounding rule in `src/numeric.rs` and dispatch pooled gaps by an explicit metric flag rather than the display title.
+- [x] 13.7 Mark unsupported display scales explicitly and replace direct month indexing with a checked lookup.
+- [x] 13.8 Add regression tests and reconcile the capability spec, PROJECT, PROOF, PROCESS and decisions records with the tested snapshot.
+
+## 14. Review remediation: verification gate hardening (2026-11-18)
+
+- [x] 14.1 Replace every silently skipping test on the gitignored official workbook with an always-on synthetic fixture generated in the test (`src/test_fixture.rs`); keep the official golden values as an explicitly loud check when the local workbook is present.
+- [x] 14.2 Promote the `Keep the selected workbook path accessible` capability section to a top-level requirement (`###`) and reconcile the provenance scenario grouping; revalidate the strict OpenSpec change.
+- [x] 14.3 Replace the machine-specific fixture paths in UI tests with a neutral `/opt/fixture/` display path that reproduces the previous header layout, keeping the recorded display evidence valid.
+- [x] 14.4 Bound `u64` casts in the floating-point prize/number paths by 2^64 exactly, aligning both `integer` and `cents`, and collapse the test-only header alias.
+- [x] 14.5 Re-run format, Clippy, Rust and Python tests, release build and strict OpenSpec validation; record the tested snapshot and limits in PROOF.
+
+## 15. Final cross-artifact review (2026-11-18)
+
+- [x] 15.1 Preserve at least one visible result-detail row at 55×19 under every bounded header height, using a shared adaptive result layout for rendering and scrolling; add a rendered end-marker regression.
+- [x] 15.2 Complete invalid-draw rejection in the simple analyses and ordinal entry point; verify all 22 presentation routes reject malformed draws and preserve cancellation errors.
+- [x] 15.3 Verify ISO text/date-time input and the 64 KiB text-cell boundary with real XLSX fixtures; reconcile input contracts with accepted formats.
+- [x] 15.4 Reconcile current task counts, test references, asset inventory, README and review/evaluation records; rerun Linux gates and terminal checks before the authorized commit and push.

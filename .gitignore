@@ -70,6 +70,10 @@ docs/eBooks/
 .opencode/
 skills-lock.json
 
+# Mandatory local prompt log and its rotated copies (see docs/agents-log-policy.md)
+/AGENTS.log
+/AGENTS.log.*
+
 # Generated daily Caixa results and local update state
 /docs/Dia de Sorte-atual.xlsx
 /docs/.dia-de-sorte-atualizacao.json

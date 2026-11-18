@@ -24,7 +24,10 @@ pub struct Histogram {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Cancelled;
+pub enum Error {
+    Cancelled,
+    InvalidDraw,
+}
 
 fn common(a: &[u8; 7], b: &[u8; 7]) -> u32 {
     let (mut i, mut j, mut count) = (0, 0, 0);
@@ -43,15 +46,14 @@ fn common(a: &[u8; 7], b: &[u8; 7]) -> u32 {
 }
 
 /// Calculate one historical strategy; `progress` returns false to cancel.
-/// Input is expected to come from the validated, sorted snapshot loader.
-pub fn calculate<F>(
-    draws: &[Draw],
-    strategy: Strategy,
-    mut progress: F,
-) -> Result<Histogram, Cancelled>
+/// Reject draw values that violate the sorted snapshot invariants.
+pub fn calculate<F>(draws: &[Draw], strategy: Strategy, mut progress: F) -> Result<Histogram, Error>
 where
     F: FnMut(usize, usize) -> bool,
 {
+    if !draws.iter().all(Draw::is_valid) {
+        return Err(Error::InvalidDraw);
+    }
     let n = draws.len();
     let total = if strategy == Strategy::Recurrence {
         n.saturating_mul(n.saturating_sub(1)) / 2
@@ -60,7 +62,7 @@ where
     };
     let mut completed = 0;
     if !progress(0, total) {
-        return Err(Cancelled);
+        return Err(Error::Cancelled);
     }
     let mut observations = Vec::with_capacity(n);
     for (idx, draw) in draws.iter().enumerate() {
@@ -78,7 +80,7 @@ where
                         max_overlap = max_overlap.max(common(&draw.numbers, &earlier.numbers));
                         completed += 1;
                         if !progress(completed, total) {
-                            return Err(Cancelled);
+                            return Err(Error::Cancelled);
                         }
                     }
                     Some(max_overlap)
@@ -109,7 +111,7 @@ where
         if strategy != Strategy::Recurrence {
             completed += 1;
             if !progress(completed, total) {
-                return Err(Cancelled);
+                return Err(Error::Cancelled);
             }
         }
     }
@@ -222,7 +224,7 @@ mod tests {
                 done == 0
             },
         );
-        assert_eq!(result, Err(Cancelled));
+        assert_eq!(result, Err(Error::Cancelled));
         assert_eq!(progress, vec![(0, 1), (1, 1)]);
     }
 }

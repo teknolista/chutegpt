@@ -18,6 +18,9 @@ pub struct Metric {
     pub scale: u32,
     pub values: Vec<Option<i64>>,
     pub bins: BTreeMap<i64, usize>,
+    /// Pooled observations are not aligned with one draw and cannot be listed
+    /// per contest or used as a per-draw distribution.
+    pub pooled: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -30,14 +33,18 @@ pub struct ResultSet {
 pub enum Error {
     Cancelled,
     NonFiniteOrOverflow,
+    InvalidDraw,
 }
 
 fn key(value: f64) -> Result<i64, Error> {
-    let scaled = (value * 100.0).round_ties_even();
-    if !scaled.is_finite() || scaled < i64::MIN as f64 || scaled >= i64::MAX as f64 {
-        Err(Error::NonFiniteOrOverflow)
+    crate::numeric::scaled100(value).ok_or(Error::NonFiniteOrOverflow)
+}
+
+fn validate(draws: &[Draw]) -> Result<(), Error> {
+    if draws.iter().all(Draw::is_valid) {
+        Ok(())
     } else {
-        Ok(scaled as i64)
+        Err(Error::InvalidDraw)
     }
 }
 
@@ -92,6 +99,7 @@ fn metric(name: impl Into<String>, scale: u32, values: Vec<Option<i64>>) -> Metr
         scale,
         values,
         bins,
+        pooled: false,
     }
 }
 
@@ -99,6 +107,10 @@ fn group_counts(draw: &Draw) -> ([u8; 4], [u8; 10]) {
     let mut rows = [0_u8; 4];
     let mut columns = [0_u8; 10];
     for &n in &draw.numbers {
+        debug_assert!((1..=31).contains(&n), "draw number outside 1..=31");
+        if !(1..=31).contains(&n) {
+            continue;
+        }
         rows[usize::from((n - 1) / 10)] += 1;
         columns[usize::from(n % 10)] += 1;
     }
@@ -110,6 +122,7 @@ pub fn calculate<F>(draws: &[Draw], strategy: Strategy, mut progress: F) -> Resu
 where
     F: FnMut(usize, usize) -> bool,
 {
+    validate(draws)?;
     if !progress(0, draws.len()) {
         return Err(Error::Cancelled);
     }
@@ -205,7 +218,9 @@ where
         metrics.push(metric(name, scale, values));
     }
     if strategy == Strategy::Gaps {
-        metrics.push(metric("Espaçamentos agrupados", 1, pooled));
+        let mut section = metric("Espaçamentos agrupados", 1, pooled);
+        section.pooled = true;
+        metrics.push(section);
     }
     Ok(ResultSet { metrics, totals })
 }
@@ -267,6 +282,15 @@ mod tests {
             vec![Some(1), Some(1), Some(7), Some(10), Some(10), Some(1)]
         );
         assert_eq!(g.metrics[7].bins.values().sum::<usize>(), 6);
+    }
+    #[test]
+    fn invalid_draws_are_rejected_before_grouping_or_ranking() {
+        let mut draw = sample();
+        draw.numbers = [0, 2, 3, 4, 5, 6, 7];
+        assert_eq!(
+            calculate(&[draw], Strategy::Distance, |_, _| true),
+            Err(Error::InvalidDraw)
+        );
     }
     #[test]
     fn grouping_boundaries_and_progress() {

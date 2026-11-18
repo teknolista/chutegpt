@@ -6,3 +6,5 @@
   - Each strategy result includes charts or tables, labeled sections, eligible counts, units and a series detail panel for applicable categories. Keyboard-only operation with Brazilian Portuguese labels.
 
 - DEV-DATA-1: Development workflow refreshes the official workbook once per local working day, with force refresh and previous-copy protection. See [change scenarios](../../openspec/changes/atualizar-resultados-diarios/specs/atualizacao-resultados/spec.md). This does not implement statistical analysis.
+
+DEV-DATA-1 is a developer workflow, not an end-user product feature. The active updater change and [PROOF](../proof/verification.md) own its operational checks.

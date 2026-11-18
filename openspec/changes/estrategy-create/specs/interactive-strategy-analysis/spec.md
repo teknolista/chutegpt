@@ -18,6 +18,10 @@ The application SHALL load a valid local workbook from the user's data directory
 - **WHEN** the workbook is missing, unreadable, corrupt or contains invalid required draw data
 - **THEN** the application explains the failure and allows the user to return without producing an analysis
 
+#### Scenario: Workbook above resource limits
+- **WHEN** the workbook exceeds the permitted compressed size, declares or actually inflates beyond the permitted uncompressed total, or contains an oversized text cell
+- **THEN** the application rejects it with a contextual error before producing any analysis
+
 ### Requirement: Disclose freshness before analysis
 
 The application SHALL warn the user when the selected valid workbook lacks a matching successful update on the local day, or when freshness is unknown.
@@ -94,17 +98,17 @@ The application SHALL provide the definable and verifiable legacy series statist
 - **WHEN** a category series starts with positions whose statistic cannot be defined because no prior history or coverage exists
 - **THEN** those positions are excluded from the series population, the series detail states how many were excluded, and that population stays reconcilable with the result screen's valid/unavailable notice
 
-### Requirement: Show workbook provenance in the menu header
+### Requirement: Show workbook provenance across application headers
 
-The main menu header SHALL display one horizontal line in this order: `ChuteGPT — Análise Histórica Descritiva | Fonte: <selected path> | <freshness status>`. Use the actual selected path and truthful Portuguese freshness status. Preserve existing freshness warnings and continuation choices, and do not trigger a download.
+The main-menu and strategy-screen headers SHALL show the application title, selected workbook path and truthful Portuguese freshness status in that order. Existing warnings and continuation choices remain, and no download is triggered.
 
 #### Scenario: Matching same-day record
 - **WHEN** the selected workbook has a matching successful update record for the local day
 - **THEN** the menu header shows `ChuteGPT — Análise Histórica Descritiva | Fonte: <actual path> | Verificada hoje (DD/MM/YYYY)` on one line when it fits
 
-#### Scenario: Narrow terminal
-- **WHEN** the complete header does not fit the available width
-- **THEN** the header retains the specified order and the full selected path remains accessible through the existing scrollable explanation panel
+#### Scenario: Open any strategy screen
+- **WHEN** the user opens any strategy screen (analysis results, category details, or processing progress)
+- **THEN** the screen header displays `ChuteGPT — Análise Histórica Descritiva | Fonte: <actual path> | <freshness status>`, identical to the main menu header, instead of the legacy title `ChuteGPT — análise histórica descritiva`
 
 #### Scenario: Source status is unknown or stale
 - **WHEN** validation or matching metadata cannot establish a current check
@@ -114,9 +118,28 @@ The main menu header SHALL display one horizontal line in this order: `ChuteGPT 
 - **WHEN** the background check reads the selected source but validation rejects it
 - **THEN** the header reports `falha na verificação` instead of an unverified source, the menu explanation states the validation reason, and selecting a strategy reports the failure without producing an analysis
 
+### Requirement: Keep the selected workbook path accessible
+
+The complete selected path SHALL remain accessible at every supported width. The header SHALL wrap it while it fits the space reserved for the body and key legend; otherwise, it SHALL clearly point to a dedicated scrollable provenance view.
+
+#### Scenario: Narrow terminal
+- **WHEN** the complete header does not fit the available width
+- **THEN** the header keeps the specified order and wraps the same text onto additional lines while remaining within the space retained for the body and the key legend
+- **AND** the strategy list, explanation pane and key legend remain usable at the minimum supported terminal size
+
+#### Scenario: Selected path exceeds the header budget
+- **WHEN** the full provenance header needs more lines than the header can use while retaining the body and key legend
+- **THEN** the header clearly indicates that the path is too long to show there and advertises a keyboard shortcut to open the dedicated provenance view
+- **AND** the view shows the complete selected path wrapped to the terminal width and allows keyboard scrolling to its beginning and end
+- **AND** closing the view returns to the same underlying screen without losing its menu selection, analysis, progress, or navigation state
+
 ### Requirement: Explain the selected strategy alongside the menu
 
-The main menu SHALL dedicate approximately 30% of its horizontal content space to the strategy list and 70% to a vertically separated explanation pane. Each of the 22 strategies SHALL have two or three Portuguese paragraphs accurately describing its calculation and distinct result sections. Existing navigation and resize recovery remain usable.
+The main menu SHALL dedicate 30% of horizontal space to the strategy list and 70% to a vertically separated explanation pane. Each of the 22 strategies SHALL provide exactly three Portuguese paragraphs: a concise definition followed by detailed calculation, input/population, eligibility and result-section explanations. The explanation pane SHALL omit `Fonte: <selected path>` to prevent redundancy with the header. Existing navigation and resize recovery remain usable.
+
+#### Scenario: Detailed strategy calculation explanation without redundant source
+- **WHEN** the user views the explanation for any strategy on the main menu
+- **THEN** the explanation pane contains exactly three paragraphs describing the calculation methodology and result sections, and does NOT append `Fonte: <selected path>`
 
 #### Scenario: Change the selected strategy
 - **WHEN** the user moves the selection to another strategy
@@ -133,3 +156,11 @@ The strategy result screen SHALL omit the standalone `Fonte:` and `SHA-256:` lin
 #### Scenario: View an analysis
 - **WHEN** a strategy result is displayed
 - **THEN** the standalone source and digest lines are absent and the valid-observations line is separated by one blank line
+
+### Requirement: Retain readable result details under wrapped headers
+
+At supported terminal sizes, result details SHALL retain at least one visible content row, including when provenance consumes its full reserved height.
+
+#### Scenario: Tall provenance header at minimum size
+- **WHEN** the selected source produces a tall wrapped header at 55×19
+- **THEN** the result chart adapts to the remaining height and keyboard scrolling can reveal the final result-detail line

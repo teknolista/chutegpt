@@ -1,6 +1,10 @@
 # Dia de Sorte: referência de regras e estatística
 
-Pesquisa em fontes oficiais da CAIXA, consultadas em 16 de novembro de 2026. As regras podem mudar; confirme o concurso e seu regulamento antes de apostar. A edição de março de 2026 do manual não prova, por si só, que cada disposição permaneça vigente na data de um concurso posterior.
+Pesquisa em fontes oficiais da CAIXA, consultadas em 16, 17 e 18 de novembro de 2026. As regras podem mudar; confirme o concurso e seu regulamento antes de apostar. A página dinâmica atual é uma fotografia da consulta, e a edição de março de 2026 do manual não prova, por si só, que cada disposição permaneça vigente na data de um concurso posterior.
+
+Na consulta de 17/11/2026, a [página atual do Dia de Sorte](https://loterias.caixa.gov.br/Paginas/Dia-de-Sorte.aspx) informa apostas de 7 a 15 números entre 31 mais um Mês da Sorte, sorteio de sete números e um mês, aposta mínima de R$ 2,50, premiação fixa de R$ 25,00 para 5 acertos, R$ 5,00 para 4 acertos e R$ 2,50 para o mês, e rateio do saldo em 70% para 7 acertos e 30% para 6. Também informa o calendário atual de segunda a sexta a partir das 21h e domingo a partir das 11h. A página resume as regras e não detalha todas as exceções descritas no manual. A URL do Manual v19 redirecionou repetidamente e não pôde ser reaberta nesta consulta; portanto, os detalhes atribuídos especificamente ao manual abaixo continuam baseados na consulta anterior, não em nova confirmação do PDF.
+
+A consulta de 18/11/2026 à mesma página confirmou os valores e o calendário resumidos acima. Essa reconfirmação da página não revalida o Manual v19 nem estabelece a vigência histórica das regras em cada concurso.
 
 ## Mecânica e preços
 
@@ -44,3 +48,5 @@ Há uma inconsistência textual no § 18.1.3.8 do manual de 2026: menciona resul
 ## Atualização da planilha no desenvolvimento
 
 Em 16/11/2026, foi verificado que o botão de download da página oficial utiliza o serviço público de resultados da Caixa. O script `scripts/atualizar_resultados.py` baixa o arquivo, verifica a integridade do ZIP, a sequência completa dos concursos desde o primeiro, as datas, as sete dezenas em ordem crescente e o mês antes de gravar em `docs/Dia de Sorte-atual.xlsx`. Os meses históricos podem aparecer como números, nomes ou texto com entidades HTML, como `Mar&ccedil;o`. Na verificação inicial, a planilha continha resultados até o concurso 1348, correspondente ao resultado exibido na página naquele momento. Em 17/11/2026, a rotina registrou uma nova cópia até o concurso 1349, com o mesmo formato e sem substituir `docs/Dia de Sorte.xlsx`. O formato, a cobertura completa e a publicação de resultados posteriores devem continuar sendo verificados; o script pode precisar de ajustes se a Caixa mudar o serviço ou o formato.
+
+Em 18/11/2026, a rotina diária confirmou que a cópia já havia sido atualizada no dia e validada até o concurso 1350. Foi utilizada essa cópia nos testes desta revisão; o comando não efetuou outro download nem verificou eventual publicação posterior no mesmo dia.
