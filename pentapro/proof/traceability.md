@@ -33,7 +33,7 @@ This map links the current scope to the implementation, checks and evidence reco
 
 ## Development workbook refresh
 
-- `DEV-DATA-1` in [features](../product/features.md): [updater change](../../openspec/changes/atualizar-resultados-diarios/proposal.md) implemented in `scripts/atualizar_resultados.py`; checks in `tests/test_atualizar_resultados.py`; evidence in [verification](verification.md) and [PROOF](interactive-strategies.md).
+- `DEV-DATA-1` in [features](../product/features.md): [updater change](../../openspec/changes/archive/2026-11-19-atualizar-resultados-diarios/proposal.md) implemented in `scripts/atualizar_resultados.py`; checks in `tests/test_atualizar_resultados.py`; evidence in [verification](verification.md) and [PROOF](interactive-strategies.md).
 
 ## Remaining untraced gaps
 

@@ -20,6 +20,9 @@ The owner authorized the interactive historical-analysis implementation after fu
 - Specification artifacts (PentaPRO and OpenSpec) are written in English; `docs/`, the root README and the conversation use Brazilian Portuguese.
 - Every prompt is appended to the local, git-ignored `AGENTS.log` before any other action; see [DEC-8](../project/decisions.md) and the [prompt log policy](../../docs/agents-log-policy.md). On OpenCode the user-level plugin does it mechanically for every project; elsewhere the agent appends manually and must not duplicate an existing entry.
 - Every addition or modification is reflected in the owning PentaPRO records, with evidence bound to the tested source hashes.
+- OpenSpec uses project-scoped skill resolution (`skillsScope: project`). Agent skill directories are development tooling, not application runtime dependencies; `.agents/` and `.claude/` are local and git-ignored.
 - The Windows and macOS scope is deferred by owner decision; do not infer support from a Linux run.
 - The application performs descriptive historical analysis only; no strategy, check or record may imply predictive advantage.
 - Run `cargo test -- --test-threads=1` for deterministic full-suite results; with the default parallel harness `ui::tests::preflight_updates_menu_status_without_starting_analysis` can fail because its fixed polling budget expires while several tests read the same official workbook concurrently (observed 2026-11-17; see [decisions](../project/decisions.md) DEC-6 and [PROOF](../proof/interactive-strategies.md#test-flakiness-note--2026-11-17)).
+
+2026-11-19: the owner explicitly authorized archiving the completed updater and interactive-analysis changes after their deltas matched the maintained capability specs. Both changes were archived; release and deployment remain separate.

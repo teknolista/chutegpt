@@ -199,7 +199,7 @@ Tested working-tree snapshot on Linux x86_64; `src/ui.rs` SHA-256 `d439b058a3b9c
 - UI TestBackend regressions verify the shared provenance header in menu, loading, working, confirmation, result, series and error states; verify no source path is appended to the menu explanation; and verify all 22 descriptions contain three paragraphs and change with the selected strategy.
 - At both 55×19 and 100×24, keyboard Page Down reaches the final word of each strategy description and selection resets the scroll. The 55×19 case exposed a one-column width mismatch between scroll measurement and the rendered 30/70 pane; scroll measurement now uses Ratatui's same split and interior width.
 
-These are automated TestBackend layout and interaction checks, not a human accessibility assessment or a test of every terminal emulator. They do not establish Windows/macOS support, release readiness or predictive efficacy. The active change remains unarchived.
+These are automated TestBackend layout and interaction checks, not a human accessibility assessment or a test of every terminal emulator. They do not establish Windows/macOS support, release readiness or predictive efficacy. At this 2026-11-17 snapshot the active change remained unarchived; it was archived on 2026-11-19.
 
 ## Narrow-terminal header path closure — 2026-11-17
 
@@ -276,8 +276,8 @@ Snapshot hashes (SHA-256):
 | User documentation | `docs/dia-de-sorte-referencia.md` | `6ae6c4e429adba17ada3e951647223b6a721899e18ac0aa487a22ce74e9aac0a` |
 | PRODUCT contract | `pentapro/product/interactive-strategies.md` | `d8642a5e1445fbfa1802d6eadc4c5af78c23c14c01c847444fb94fc93f4e1f96` |
 | PROJECT contract | `pentapro/project/interactive-strategies.md` | `69805e6b97427e657ee78b71cb249ea4650aba2b87c0e0dadb262faec3862d1d` |
-| OpenSpec proposal | `openspec/changes/estrategy-create/proposal.md` | `2e982fb54f9af6efa6c4456f9d7ce10ca1b8930dc491101713dcd373b7469552` |
-| OpenSpec capability | `openspec/changes/estrategy-create/specs/interactive-strategy-analysis/spec.md` | `c3ca9929ec382e2481de7635de39a1c0aa1429fd31987f0be4fb40c480a30281` |
+| OpenSpec proposal | `openspec/changes/archive/2026-11-19-estrategy-create/proposal.md` | `2e982fb54f9af6efa6c4456f9d7ce10ca1b8930dc491101713dcd373b7469552` |
+| OpenSpec capability | `openspec/changes/archive/2026-11-19-estrategy-create/specs/interactive-strategy-analysis/spec.md` | `c3ca9929ec382e2481de7635de39a1c0aa1429fd31987f0be4fb40c480a30281` |
 
 ## Peer-review robustness remediation — 2026-11-17
 
@@ -312,7 +312,7 @@ Snapshot hashes (SHA-256):
 | Application | `src/main.rs` | `2429794a393fd5871425c0e0764f954ae576934234fea555f1f152e7f0ffa277` |
 | Application | `src/series.rs` | `ff7484ad5304373d0255b9315e84b375e25dbcbd968e3418643b31ef1f359fae` |
 | Application | `src/analysis.rs` | `327710a187fa31f4f24b4542fe642f95faad76ec7ec79abffc85dfc47e4dfc16` |
-| OpenSpec | `openspec/changes/estrategy-create/tasks.md` | `efdd4136a51ba2ecc8b0693dba25cc841ccd6e2c159b30e7d3ab159eb6a33ed0` |
+| OpenSpec | `openspec/changes/archive/2026-11-19-estrategy-create/tasks.md` | `efdd4136a51ba2ecc8b0693dba25cc841ccd6e2c159b30e7d3ab159eb6a33ed0` |
 | OpenSpec | capability spec | `34c16c096d8ba250f17421b479777109b8fc0f380f06337d3a2de967a88a4332` |
 | PROJECT | `pentapro/project/decisions.md` | `25d7fac1b67bb86b4edfa61049a15eb1e8ec66705f9f1c51036b197b22fb5c4a` |
 | PROJECT | `pentapro/project/architecture.md` | `cc07e26dd8a7e0c95c9dde60d16d9d1c6662fbfe9f0fff15aacce7d17687165d` |
@@ -340,7 +340,7 @@ Snapshot hashes (SHA-256):
 | Application | `src/ui.rs` | `1c363daf9dbfa832f727dd71d34ecd8ce66fe01265ed5ea57d4f92826e681194` |
 | Application | `src/presentation.rs` | `da5196bfaf4c242d1d69c843d54f5c41a58f45cdc93ae3a48efec78444146ebd` |
 | OpenSpec | capability spec | `194da86646af90c1546eed7b9537492f305cd90434e7a3f4db7f388a87d8005b` |
-| OpenSpec | `openspec/changes/estrategy-create/tasks.md` | `d8f3552219b58827977e7099f42496ee87674ffc339eda601e655d76ac06de24` |
+| OpenSpec | `openspec/changes/archive/2026-11-19-estrategy-create/tasks.md` | `d8f3552219b58827977e7099f42496ee87674ffc339eda601e655d76ac06de24` |
 
 Limits: the official-workbook golden checks still depend on a local, non-committable copy of `docs/Dia de Sorte-atual.xlsx` (gitignored); fresh clones and any CI without that file get the synthetic gate only and both must pass independently. The synthetic fixture verifies integration contracts and golden rendering, not the official prize-row values. No CI workflow exists in this repository; the gate remains a documented local sequence.
 
@@ -395,6 +395,24 @@ SHA-256 of the final source, data and key contracts (historical hashes above ret
 | `README.md` | `9743351fb8fd632ba2c24857487aff77aa18deaa045b8b14680a01ced26afec9` |
 | `docs/dia-de-sorte-referencia.md` | `267bb703b2362bee77c41271e56555cd47a0753b1d95eeadeaebd1fd7f43f992` |
 | `docs/Dia de Sorte-atual.xlsx` | `f80d8c3e71f7cda4a3c7061cc3009fa7b24226b6d355dd6770560d01e1182eab` |
-| `openspec/changes/estrategy-create/specs/interactive-strategy-analysis/spec.md` | `43e2038362d41a3461ef962ef85c0365e3990a2e9eac647f4db5a34e3c56df23` |
+| `openspec/changes/archive/2026-11-19-estrategy-create/specs/interactive-strategy-analysis/spec.md` | `43e2038362d41a3461ef962ef85c0365e3990a2e9eac647f4db5a34e3c56df23` |
 
 Verdict: **No blocking findings after remediation and focused re-review** within this scope. Missing evidence remains explicit: no CI workflow, independent sign-off on the final fixes, exhaustive malformed-XLSX equivalence, full historical rule verification, human accessibility/usability acceptance, installed distribution, other platforms or predictive performance. The earlier forged-ZIP coverage remains a counting-reader check rather than a crafted lying archive. The prompt-capture plugin is user-local and its historical OpenCode tests were not rerun by this Codex session; manual append and Git exclusion were verified here. Logo/ticket origin and redistribution terms remain Pending. None of these records constitutes release or archive acceptance.
+
+## OpenSpec archive and current workbook refresh — 2026-11-19
+
+Scope: author review of the maintained PentaPRO specification against the implemented updater and interactive-analysis snapshot, completion of the previously prepared OpenSpec archives, and validation of the resulting documentation state. This is not an independent sign-off or release approval.
+
+The current Rust source, Cargo metadata, README and legacy reference hashes match the final cross-artifact review table above. The updater and its 13-test Python suite also match the recorded hashes (`scripts/atualizar_resultados.py`: `22e6746e90cd60cb0f662d6c660d20104d10a9506bd98d9666133aca4695558d`; `tests/test_atualizar_resultados.py`: `84b931d5128f6eb1bd8138d72c896296ea955a93f5c934bbeaf6c5dbdb2aa130`). This supports consistency of the written PentaPRO requirements with the current source snapshot; no application code changed in this reconciliation.
+
+The owner explicitly authorized archiving on 2026-11-19. OpenSpec reported all artifacts complete and all tasks complete (`atualizar-resultados-diarios`: 6/6; `estrategy-create`: 79/79). The daily-update delta requirements match `openspec/specs/atualizacao-resultados/spec.md`; its generated `TBD` Purpose was replaced with a description of the validated Caixa workbook refresh and preservation behavior. The interactive-analysis delta requirements match `openspec/specs/interactive-strategy-analysis/spec.md`. Both changes were archived by the OpenSpec CLI under `openspec/changes/archive/2026-11-19-*/`; the CLI confirmed the specs were already synchronized. PentaPRO indexes now link to the archives and maintained capability specs.
+
+Executed on Linux x86_64 for this reconciliation:
+- `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test -- --test-threads=1` (50 tests), `python3 -m unittest discover -s tests` (13 tests), `cargo build --release`, and `cargo run -- --help`: passed.
+- `openspec validate --all --strict` (2 maintained specs) and `openspec validate --archived --strict` (2 archived changes): passed.
+- `python3 scripts/atualizar_resultados.py`: reported that today's successful refresh already exists and the local workbook reaches contest 1351. It skipped downloading; no forced or fresh Caixa request was made. The ignored local workbook SHA-256 is `cc537479e590e92996b32be49fa104d1be29763a0ec193cf9293463e76b67a4f`.
+- A local Markdown path/anchor sweep covered 50 project Markdown files and 372 local links after correcting links affected by archival; all passed. `git diff --check` is recorded for the final reviewed tree.
+
+The project records `skillsScope: project` for OpenSpec tooling, and `.claude/` is now git-ignored as local agent state. This does not alter the Rust application's runtime behavior. Pseudo-terminal behavior was not rerun in this documentation/archive pass; the 2026-11-18 terminal evidence remains applicable because the relevant application hashes are unchanged.
+
+Limits remain: Linux is the only verified target for this stage; the local workbook refresh was not a new download; exhaustive updater/reader equivalence, all malformed XLSX variants, Manual v19 historical rules, human accessibility, installed distribution, independent sign-off and predictive efficacy remain unverified or separate. Archival does not constitute release authorization.

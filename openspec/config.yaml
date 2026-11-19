@@ -8,8 +8,12 @@ context: |
   Write specification artifacts in English. Conversations, docs/ and the root README.md use Brazilian Portuguese; preserve localized content and literal names where needed.
 rules:
   proposal:
-    - Identify scope, affected PentaPRO records, assumptions and unresolved decisions.
+    - Identify scope, affected PentaPRO records, assumptions and unresolved
+      decisions.
   specs:
-    - Express observable scenarios, including relevant boundaries and failure cases.
+    - Express observable scenarios, including relevant boundaries and failure
+      cases.
   tasks:
-    - Include Linux validation, statistical checks and PentaPRO reconciliation when applicable.
+    - Include Linux validation, statistical checks and PentaPRO reconciliation
+      when applicable.
+skillsScope: project

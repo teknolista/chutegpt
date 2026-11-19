@@ -18,7 +18,7 @@ The current Rust binary in `src/main.rs` uses a local XLSX adapter, independent 
 | `src/presentation.rs` | Result builders: typed `View`/`Section` results for all 22 strategies, strategy names and concise definitions (expanded explanations live in `src/ui.rs`), shared `format_value`, explicit unsupported-scale marker | IA-04, IA-06; Brazilian Portuguese labels; scale-100 sign preservation |
 | `src/ui.rs` | Ratatui TUI: menu (30/70 split, scrollable explanation), background preflight, strategy dispatch, progress/cancellation, result/series navigation, resize handling, `TerminalSession` guard | IA-01–IA-07; minimum 55×19; preflight truthful freshness |
 
-Development utility: `scripts/atualizar_resultados.py` uses the Caixa page download endpoint via Python standard library and stores a separate current workbook and local state under `docs/`. This is not an application feature; see the [OpenSpec change](../../openspec/changes/atualizar-resultados-diarios/proposal.md). Tests are in `tests/test_atualizar_resultados.py`.
+Development utility: `scripts/atualizar_resultados.py` uses the Caixa page download endpoint via Python standard library and stores a separate current workbook and local state under `docs/`. This is not an application feature; see the [OpenSpec change](../../openspec/changes/archive/2026-11-19-atualizar-resultados-diarios/proposal.md). Tests are in `tests/test_atualizar_resultados.py`.
 
 ## Repository tooling outside the crate
 

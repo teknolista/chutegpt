@@ -63,6 +63,7 @@ docs/eBooks/
 .context/
 .vibes/
 .agents/
+.claude/
 .skills/
 .cursor/
 .cursorrules
