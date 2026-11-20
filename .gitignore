@@ -33,14 +33,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Visual Studio Code files
-.vscode/
-.history/
-prettierignore.txt
-*.code-workspace
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
 # Ignore legacy code
 legacy/
 
@@ -57,13 +49,28 @@ docs/eBooks/
 **/.env.*
 !**/.env.example
 
+# Generated daily Caixa results and local update state
+/docs/Dia de Sorte-atual.xlsx
+/docs/.dia-de-sorte-atualizacao.json
+__pycache__/
+
+# Local lock for the Caixa workbook updater
+/docs/.dia-de-sorte-atualizacao.lock
+
+# Visual Studio Code files
+.vscode/
+.history/
+prettierignore.txt
+*.code-workspace
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
 # AI development artifacts: skills, context, prompts, instructions, and agent-specific files
 .ai/
 .ai-context/
 .context/
 .vibes/
 .agents/
-.claude/
 .skills/
 .cursor/
 .cursorrules
@@ -74,11 +81,3 @@ skills-lock.json
 # Mandatory local prompt log and its rotated copies (see docs/agents-log-policy.md)
 /AGENTS.log
 /AGENTS.log.*
-
-# Generated daily Caixa results and local update state
-/docs/Dia de Sorte-atual.xlsx
-/docs/.dia-de-sorte-atualizacao.json
-__pycache__/
-
-# Local lock for the Caixa workbook updater
-/docs/.dia-de-sorte-atualizacao.lock
