@@ -1,19 +1,46 @@
 schema: spec-driven
 
 context: |
-  ChuteGPT is a Rust CLI intended for Linux desktop terminals.
-  PentaPRO in pentapro/ maintains project facts and specifications; OpenSpec owns active changes and their scenarios and tasks. Reconcile changed records and validation evidence across both.
+  Repository: ChuteGPT is a Rust CLI intended for Linux desktop terminals.
   Lottery rules and datasets vary over time. Consult docs/dia-de-sorte-referencia.md and verify applicable official sources and versions.
   Statistical claims must state assumptions, sample space, numerical precision and limitations; historical patterns do not guarantee future results.
   Write specification artifacts in English. Conversations, docs/ and the root README.md use Brazilian Portuguese; preserve localized content and literal names where needed.
+  Read the repository AGENTS.md and the applicable instructions and contracts.
+  PentaPRO in pentapro/ maintains project facts and specifications; OpenSpec owns active changes and their scenarios and tasks. Reconcile changed records and validation evidence across both.
+  Language: English
+  All artifacts must be written in English.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
 rules:
   proposal:
-    - Identify scope, affected PentaPRO records, assumptions and unresolved
-      decisions.
+    - State the intended outcome, scope, exclusions, and affected subprojects.
   specs:
-    - Express observable scenarios, including relevant boundaries and failure
-      cases.
+    - Describe observable behavior and relevant failure cases in acceptance
+      scenarios.
   tasks:
-    - Include Linux validation, statistical checks and PentaPRO reconciliation
-      when applicable.
+    - Link behavior tasks to their acceptance scenarios and name the evidence
+      needed.
+
 skillsScope: project
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
