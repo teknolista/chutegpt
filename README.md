@@ -103,3 +103,8 @@ O repositório inclui o texto da GNU General Public License versão 3. Consulte 
 Copyleft © 2026 <a href="https://x.com/teknolista">Raul Bras</a> 🇧🇷<br>
 Feito no Brasil, em Osasco (SP), com 🌭 🍕 e IA 🤖.
 </small></p>
+
+
+## Fluxo de desenvolvimento com IA
+
+O projeto utiliza skills e perfis de agentes PentaPRO locais em conjunto com o [OpenSpec](openspec/). Consulte as [orientações para agentes](AGENTS.md) para o fluxo do projeto. O [protocolo de melhoria contínua](docs/agents/continuous-improvement.md) descreve o ciclo PDSA e o [registro de lições aprendidas](docs/agents/lessons-learned.md); execuções relevantes da fábrica seguem o [guia de registros de execução](docs/agents/runs/README.md). As lições são registradas em inglês.

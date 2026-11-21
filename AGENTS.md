@@ -17,7 +17,7 @@ The full rule, redaction patterns, concurrency behavior, known limits and the ma
 
 ## Sources and workflow
 
-- At the start of each local day when working on this repository, run `python3 scripts/atualizar_resultados.py` on Linux. Run it before work that depends on contest data and use the validated `docs/Dia de Sorte-atual.xlsx`. The script skips a repeat download after a successful update on the same local date. Use `--force` to check again after a draw. If the update fails, report the failure and identify any prior copy used as potentially stale.
+- At the start of each local day when working on this repository, run `python3 scripts/atualizar_resultados.py` on Linux. The owner has granted standing authorization to run this updater to download results, subject to host permissions. Run it before work that depends on contest data and use the validated `docs/Dia de Sorte-atual.xlsx`. The script skips a repeat download after a successful update on the same local date. Use `--force` to check again after a draw. If the update fails, report the failure and identify any prior copy used as potentially stale.
 
 - Start with `pentapro/process/index.md`, then read the affected records across `pentapro/`. `pentapro/` maintains the project specification; `openspec/` owns active changes, scenarios and tasks. Resolve disagreements explicitly.
 - Keep PRODUCT requirements and acceptance language- and framework-agnostic so they can guide an alternative implementation. Put the selected implementation language, libraries, modules and architecture in PROJECT; do not make current source structure a product requirement.
@@ -42,3 +42,17 @@ The user writes project prompts in Brazilian Portuguese; respond in Brazilian Po
 ## Development and validation
 
 From repository root: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test -- --test-threads=1`, `cargo run`, and `cargo build --release`. Run checks appropriate to the change and report the platform and gaps. Use `--test-threads=1` to avoid intermittent parallel-I/O failures in the test suite (see `pentapro/project/decisions.md` DEC-6). Tests of numerical behavior must cover independent expected results and meaningful boundary cases. Update this guidance when project workflows change.
+
+
+## PentaPRO factory guidance
+
+Read existing project specifications under `pentapro/` and preserve their canonical records. Use the applicable project-local skills in `.agents/skills/`; use `software-factory` for explicitly requested factory runs and OpenSpec skills for the repository-root `openspec/` workflow. Follow existing project instructions and actual user authority. Factory role profiles are available for Codex, GitHub Copilot, OpenCode and Antigravity CLI; resolve their host-specific identities before delegation.
+
+When a developer directly invokes a factory role without a narrower task, delegate its defined workflow using the current project and session context. Preserve its configured model and reasoning effort, the developer’s custom settings, applicable permissions and role-specific stop conditions. A direct shipper invocation requests git-ship review, commit and normal push; implementation completion alone does not.
+
+All factory roles use the PDSA protocol in `docs/agents/continuous-improvement.md` and consult relevant lessons in `docs/agents/lessons-learned.md`. The orchestrator alone records lessons, always in English. For substantial factory or multi-agent runs, the orchestrator maintains a durable record under `docs/agents/runs/`; role packets carry the run ID, record path, version and input fingerprint. Follow the installed `software-factory` run-record contract.
+
+
+## Software Excellence Manifesto — Powered by PentaPRO
+
+Our mission is to build the finest software in the world. Every agent, subagent, and component of our development harness must pursue this ambition with unwavering dedication, exceptional engineering discipline, and relentless attention to detail. We are empowered by PentaPRO, our collection of specialized skills, agents, and engineering practices, and must intelligently leverage its most appropriate capabilities throughout the entire software lifecycle, guided by its five pillars: PRODUCT, PROJECT, PRODUCTION, PROOF, and PROCESS. We strive for excellence in every aspect of our software, from product vision, architecture, user experience, and design to implementation, performance, security, privacy, accessibility, reliability, and maintainability. Every decision must be intentional, every implementation purposeful, and every meaningful result verified through objective evidence. We challenge assumptions, eliminate unnecessary complexity, prevent defects, embrace continuous improvement, and never compromise correctness for superficial speed or appearance. We do not merely write code; we engineer extraordinary software that delivers exceptional value to its users. Our ambition is to create software that sets new standards of quality and innovation, worthy of being recognized among the best ever built. Excellence is our commitment, PentaPRO is our engineering foundation, and outstanding software is our ultimate achievement.

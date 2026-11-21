@@ -6,7 +6,7 @@ The owner authorized the interactive historical-analysis implementation after fu
 
 | Stage | Responsible | Input → output | Gate and evidence | Escalation |
 | --- | --- | --- | --- | --- |
-| Daily data refresh | Agent, at the start of each local working day | `python3 scripts/atualizar_resultados.py` → validated `docs/Dia de Sorte-atual.xlsx` and sidecar | Contest number reported by the updater; failure preserves the previous copy and is reported | Report the failure and the possibly stale copy; retry with `--force` after a draw |
+| Daily data refresh (owner standing authorization to run the results updater, subject to host permissions) | Agent, at the start of each local working day | `python3 scripts/atualizar_resultados.py` → validated `docs/Dia de Sorte-atual.xlsx` and sidecar | Contest number reported by the updater; failure preserves the previous copy and is reported | Report the failure and the possibly stale copy; retry with `--force` after a draw |
 | Prompt logging | Agent, on every interaction | Received prompt → entry in the local `AGENTS.log` | Mechanical on OpenCode through the user-level plugin (append before dispatch, abort on failure); manual elsewhere; the log is git-ignored and never committed | Report the failure, fix the logging and backfill the missing prompt before continuing |
 | Specification of a behavior change | Owner decision with agent drafting | Owner request → OpenSpec proposal/spec/tasks and the affected PentaPRO records | Specification review before implementation; readiness recorded in [PROCESS](interactive-strategies.md) | Escalate a consequential product decision instead of assuming it |
 | Implementation | Agent, within the authorized scope | Approved change → source, tests, documentation | [Traceability](../proof/traceability.md) maps each requirement to code and checks | Stop at the boundary of the authorization |
@@ -26,3 +26,7 @@ The owner authorized the interactive historical-analysis implementation after fu
 - Run `cargo test -- --test-threads=1` for deterministic full-suite results; with the default parallel harness `ui::tests::preflight_updates_menu_status_without_starting_analysis` can fail because its fixed polling budget expires while several tests read the same official workbook concurrently (observed 2026-11-17; see [decisions](../project/decisions.md) DEC-6 and [PROOF](../proof/interactive-strategies.md#test-flakiness-note--2026-11-17)).
 
 2026-11-19: the owner explicitly authorized archiving the completed updater and interactive-analysis changes after their deltas matched the maintained capability specs. Both changes were archived; release and deployment remain separate.
+
+## Factory tooling synchronization — 2026-11-21
+
+Project-local Setup PentaPRO and Software Factory skills and existing host role profiles were reconciled with collection revision `e24f4907e07b05a2404c462414ffcb37afe7cfb1`. Direct role invocation uses its defined workflow in the current context; configured model/effort and applicable permissions remain in force. Installed skill copies and lock entries are local development tooling. Verify role discovery in each actual host; installation does not establish runtime selection.
