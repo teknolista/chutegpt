@@ -399,7 +399,7 @@ SHA-256 of the final source, data and key contracts (historical hashes above ret
 
 Verdict: **No blocking findings after remediation and focused re-review** within this scope. Missing evidence remains explicit: no CI workflow, independent sign-off on the final fixes, exhaustive malformed-XLSX equivalence, full historical rule verification, human accessibility/usability acceptance, installed distribution, other platforms or predictive performance. The earlier forged-ZIP coverage remains a counting-reader check rather than a crafted lying archive. The prompt-capture plugin is user-local and its historical OpenCode tests were not rerun by this Codex session; manual append and Git exclusion were verified here. Logo/ticket origin and redistribution terms remain Pending. None of these records constitutes release or archive acceptance.
 
-## OpenSpec archive and current workbook refresh — 2026-11-19
+## Change archive and current workbook refresh — 2026-11-19
 
 Scope: author review of the maintained PentaPRO specification against the implemented updater and interactive-analysis snapshot, completion of the previously prepared OpenSpec archives, and validation of the resulting documentation state. This is not an independent sign-off or release approval.
 

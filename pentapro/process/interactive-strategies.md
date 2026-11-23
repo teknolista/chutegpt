@@ -10,7 +10,7 @@ Review reconstruction (historical, proposal snapshot): the owner journey was des
 
 Execution stages after readiness (historical plan, subsequently completed within the Linux evidence limits):
 1. Implement approved strategy and source contracts in coherent increments, preserving per-strategy independence.
-2. Integrate through the real terminal entry point and run cross-platform and data tests, then reconcile OpenSpec and PentaPRO.
+2. Integrate through the real terminal entry point and run cross-platform and data tests, then reconcile the affected PentaPRO pillars and revision-bound evidence.
 3. Prepare release separately; actual release needs its own authorization and platform evidence.
 
 Next: no implementation tasks remain in the archived change. Release and distribution require a separate owner decision and their own platform, accessibility and operational evidence; no new behavior is implemented without a newly authorized change.

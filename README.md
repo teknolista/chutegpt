@@ -22,7 +22,7 @@ O objetivo do ChuteGPT é aplicar processamento numérico, combinatória e técn
 - [Pesquisa sobre o Dia de Sorte e fontes oficiais](docs/dia-de-sorte-referencia.md)
 - [Análise das estratégias das aplicações legadas](docs/analise-estrategias-legado.md)
 - [Especificações e situação do projeto (PentaPRO)](pentapro/process/index.md)
-- [Migração das especificações para PentaPRO](pentapro/process/openspec-migration.md)
+- [Cobertura da especificação PentaPRO](pentapro/process/specification-coverage.md)
 - [Orientações para agentes](AGENTS.md)
 
 ## 🎓 Funcionalidades Principais
@@ -107,4 +107,4 @@ Feito no Brasil, em Osasco (SP), com 🌭 🍕 e IA 🤖.
 
 ## Fluxo de desenvolvimento com IA
 
-O projeto utiliza skills e perfis de agentes PentaPRO locais com o [fluxo de especificação PentaPRO](pentapro/process/openspec-migration.md). Consulte as [orientações para agentes](AGENTS.md) para o fluxo do projeto. O [protocolo de melhoria contínua](docs/agents/continuous-improvement.md) descreve o ciclo PDSA e o [registro de lições aprendidas](docs/agents/lessons-learned.md); execuções relevantes da fábrica seguem o [guia de registros de execução](docs/agents/runs/README.md). As lições são registradas em inglês.
+O projeto utiliza skills e perfis de agentes PentaPRO locais com o fluxo nativo em [PentaPRO](pentapro/README.md). Consulte as [orientações para agentes](AGENTS.md) para o fluxo do projeto. O [protocolo de melhoria contínua](docs/agents/continuous-improvement.md) descreve o ciclo PDSA e o [registro de lições aprendidas](docs/agents/lessons-learned.md); execuções relevantes da fábrica seguem o [guia de registros de execução](docs/agents/runs/README.md). As lições são registradas em inglês.

@@ -61,7 +61,7 @@ From repository root: `cargo fmt --check`, `cargo clippy --all-targets -- -D war
 
 ## PentaPRO factory guidance
 
-Read existing project specifications under `pentapro/` and preserve their canonical records. Use the applicable project-local skills in `.agents/skills/`; use `software-factory` for the installed native PentaPRO factory lifecycle in `pentapro/changes/`. Preserve accepted requirements and archived historical specification records; OpenSpec was retired by the owner and is no longer the active workflow. Follow existing project instructions and actual user authority. Factory role profiles are available for Codex, GitHub Copilot, OpenCode and Antigravity CLI; resolve their host-specific identities before delegation.
+Read existing project specifications under `pentapro/` and preserve their canonical records. Use the applicable project-local skills in `.agents/skills/`; use `software-factory` for the installed native PentaPRO factory lifecycle in `pentapro/changes/`. Preserve accepted requirements and archived historical specification records; PentaPRO is the canonical specification and change workflow. Follow existing project instructions and actual user authority. Factory role profiles are available for Codex, GitHub Copilot, OpenCode and Antigravity CLI; resolve their host-specific identities before delegation.
 
 When a developer directly invokes a factory role without a narrower task, delegate its defined workflow using the current project and session context. Preserve its configured model and reasoning effort, the developer’s custom settings, applicable permissions and role-specific stop conditions. A direct shipper invocation requests git-ship review, commit and normal push; implementation completion alone does not.
 

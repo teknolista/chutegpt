@@ -1,6 +1,6 @@
-# OpenSpec to PentaPRO migration coverage
+# PentaPRO specification coverage
 
-Status: requested content migration, 2026-11-23. The user explicitly retired OpenSpec; no application implementation, new result acceptance, release or platform verification is implied. Existing 2026-11-19 archive authorization remains historical. Current source baseline was read from the working tree; original files and moved archived changes are retained through the Git history and historical draft copy below.
+Status: the accepted requirements and historical change records are reconciled with the PentaPRO pillars as of 2026-11-23. This record maps coverage and preserves historical scope; it does not establish new application acceptance, release, or platform support. Original source files and completed change records remain available in project history and the PentaPRO archive.
 
 ## Maintained capability inventory
 
@@ -38,7 +38,7 @@ The original 2026-11-16 draft [proposal](../changes/archive/2026-11-16-interacti
 
 | Retired current file | SHA-256 of pre-removal bytes |
 | --- | --- |
-| openspec/specs/atualizacao-resultados/spec.md | e9fc560f5788c2695ace18597cd178ff40596961da48264e0a8c4f216b81e48f |
-| openspec/specs/interactive-strategy-analysis/spec.md | 9be515c364d299387678881d40b64481cbffa9b5d8b6fb643743c36741ab0a8d |
+| daily-results update requirements | e9fc560f5788c2695ace18597cd178ff40596961da48264e0a8c4f216b81e48f |
+| interactive-strategy requirements | 9be515c364d299387678881d40b64481cbffa9b5d8b6fb643743c36741ab0a8d |
 
-Migration checks on the local working tree: source-to-scenario inventory covered all 33 archived-delta scenarios and all current maintained-capability scenario names; complete historical draft files and three original archive metadata files were checked byte-for-byte against their pre-removal sources; 408 internal Markdown links and anchors were checked with zero missing after deduplication; `git diff --check` passed. The local daily updater reported already current today at contest 1353; it did not download a workbook. No application runtime tests were executed for this documentation migration. Original OpenSpec archive YAML metadata was recovered from the tracked HEAD into each moved historical archive before removal. The redundant consolidated acceptance section was removed after review; unique resource-limit, rejected-preflight and same-day status clauses were folded into the existing interactive requirements and menu owner. This table is a source-to-owner index; preserved historical delta specs remain archival records, not independent current specifications.
+Migration checks on the local working tree: source-to-scenario inventory covered all 33 archived-delta scenarios and all current maintained-capability scenario names; complete historical draft files and three original archive metadata files were checked byte-for-byte against their pre-removal sources; 408 internal Markdown links and anchors were checked with zero missing after deduplication; `git diff --check` passed. The local daily updater reported already current today at contest 1353; it did not download a workbook. No application runtime tests were executed for this documentation migration. Archive metadata was preserved with the moved historical change records. The redundant consolidated acceptance section was removed after review; unique resource-limit, rejected-preflight and same-day status clauses were folded into the existing interactive requirements and menu owner. This table is a coverage index; preserved historical change records remain archival snapshots, not independent current specifications.
