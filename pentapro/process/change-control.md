@@ -8,11 +8,11 @@ On 2026-11-16, the owner requested the original README structure and progressive
 
 The owner clarified DEC-5: preserve README content and sections, and request explicit authorization before removing anything, including any still-unfilled section at final delivery.
 
-2026-11-16: user authorized a daily development-start refresh of the official workbook. See [active change](../../openspec/changes/archive/2026-11-19-atualizar-resultados-diarios/proposal.md) and its scenarios. Agent execution is conditional on work, not a scheduled background job.
+2026-11-16: user authorized a daily development-start refresh of the official workbook. See [active change](../changes/archive/2026-11-19-atualizar-resultados-diarios/proposal.md) and its scenarios. Agent execution is conditional on work, not a scheduled background job.
 
 2026-11-16: the owner requested an inventory of Chutan, Lothon and jLothon analysis strategies. The [research reference](../../docs/analise-estrategias-legado.md) and README link were added; no strategy implementation or feature acceptance is implied.
 
-2026-11-16: second-pass review reconciled the [workbook update change](../../openspec/changes/archive/2026-11-19-atualizar-resultados-diarios/proposal.md), operational guidance and agent startup rule with stricter validation, recovery and local concurrency handling. The [legacy inventory](../../docs/analise-estrategias-legado.md) now reflects the Java export and Python selection path, the cycle counting convention, and the limits of the evidence for prediction.
+2026-11-16: second-pass review reconciled the [workbook update change](../changes/archive/2026-11-19-atualizar-resultados-diarios/proposal.md), operational guidance and agent startup rule with stricter validation, recovery and local concurrency handling. The [legacy inventory](../../docs/analise-estrategias-legado.md) now reflects the Java export and Python selection path, the cycle counting convention, and the limits of the evidence for prediction.
 
 
 The owner clarified the product goal: analyze historical Dia de Sorte results for patterns and investigate the most accurate possible next-draw estimates using the latest available official data. The README, agent guidance, and PRODUCT overview reflect this goal. Feature scope and acceptance criteria remain pending.
@@ -26,7 +26,7 @@ The owner selected a user data directory as the default workbook location with a
 The owner requested OpenSpec proposal estrategy-create. Its planning artifacts link the existing five-pillar draft and record overlap with interactive-strategy-analysis; scope reconciliation and complete numerical acceptance remain pending.
 
 
-2026-11-16: the owner requested reconciliation. The sole active interactive analysis change is [estrategy-create](../../openspec/changes/archive/2026-11-19-estrategy-create/proposal.md). The earlier unimplemented draft is preserved in [history](../../openspec/history/interactive-strategy-analysis/proposal.md), not archived as a completed change. Its parity, invalid-data, stale-data, progress, retained-results and resize scenarios are incorporated in the active capability specification. Its unresolved strategy contracts, integration and release work remain in the active task list. Full-scope readiness remains blocked by those unresolved contracts and review.
+2026-11-16: the owner requested reconciliation. The sole active interactive analysis change is [estrategy-create](../changes/archive/2026-11-19-estrategy-create/proposal.md). The earlier unimplemented draft is preserved in [history](../changes/archive/2026-11-16-interactive-strategy-analysis-draft/proposal.md), not archived as a completed change. Its parity, invalid-data, stale-data, progress, retained-results and resize scenarios are incorporated in the active capability specification. Its unresolved strategy contracts, integration and release work remain in the active task list. Full-scope readiness remains blocked by those unresolved contracts and review.
 
 2026-11-16: `estrategy-create` task 1.3 defined platform data paths, `--planilha`, and compatibility with updater version-2 sidecar in [PROJECT](../project/interactive-strategies.md#workbook-path-and-freshness-contract-ia-01-ia-02); corresponding operating and check plans are linked. The S04 example was corrected to three adjacent pairs. Numerical scope and full readiness remain pending; no application implementation is claimed.
 

@@ -22,7 +22,7 @@ O objetivo do ChuteGPT é aplicar processamento numérico, combinatória e técn
 - [Pesquisa sobre o Dia de Sorte e fontes oficiais](docs/dia-de-sorte-referencia.md)
 - [Análise das estratégias das aplicações legadas](docs/analise-estrategias-legado.md)
 - [Especificações e situação do projeto (PentaPRO)](pentapro/process/index.md)
-- [Configuração do OpenSpec](openspec/config.yaml)
+- [Migração das especificações para PentaPRO](pentapro/process/openspec-migration.md)
 - [Orientações para agentes](AGENTS.md)
 
 ## 🎓 Funcionalidades Principais
@@ -35,7 +35,7 @@ Os resultados são apresentados em gráficos e tabelas navegáveis, com detalhes
 
 - **Linguagem:** Rust, edição 2024.
 - **Compilação e gerenciamento do projeto:** Cargo.
-- **Especificação:** PentaPRO e OpenSpec.
+- **Especificação:** PentaPRO.
 - **Bibliotecas externas:** Ratatui e Crossterm para o terminal; Calamine para leitura Excel; Chrono, serde_json, SHA-2 e zip para datas, metadados e validação dos dados.
 - **Sistema pretendido nesta etapa:** desktop Linux; versões e arquiteturas suportadas ainda serão definidas. Windows e macOS poderão ser considerados em uma etapa futura.
 
@@ -87,7 +87,7 @@ O público, os casos de uso e as jornadas ainda serão definidos. O objetivo ini
 
 ## 🤝 Contribuindo
 
-O fluxo de contribuição e as orientações para envio de alterações ainda serão definidos. O projeto utiliza especificações em `pentapro/` e alterações acompanhadas por OpenSpec, conforme as [orientações para agentes](AGENTS.md).
+O fluxo de contribuição e as orientações para envio de alterações ainda serão definidos. O projeto utiliza especificações em `pentapro/` e alterações acompanhadas em `pentapro/changes/`, conforme as [orientações para agentes](AGENTS.md).
 
 ## 🔒 Privacidade dos Dados
 
@@ -107,4 +107,4 @@ Feito no Brasil, em Osasco (SP), com 🌭 🍕 e IA 🤖.
 
 ## Fluxo de desenvolvimento com IA
 
-O projeto utiliza skills e perfis de agentes PentaPRO locais em conjunto com o [OpenSpec](openspec/). Consulte as [orientações para agentes](AGENTS.md) para o fluxo do projeto. O [protocolo de melhoria contínua](docs/agents/continuous-improvement.md) descreve o ciclo PDSA e o [registro de lições aprendidas](docs/agents/lessons-learned.md); execuções relevantes da fábrica seguem o [guia de registros de execução](docs/agents/runs/README.md). As lições são registradas em inglês.
+O projeto utiliza skills e perfis de agentes PentaPRO locais com o [fluxo de especificação PentaPRO](pentapro/process/openspec-migration.md). Consulte as [orientações para agentes](AGENTS.md) para o fluxo do projeto. O [protocolo de melhoria contínua](docs/agents/continuous-improvement.md) descreve o ciclo PDSA e o [registro de lições aprendidas](docs/agents/lessons-learned.md); execuções relevantes da fábrica seguem o [guia de registros de execução](docs/agents/runs/README.md). As lições são registradas em inglês.

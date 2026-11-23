@@ -4,11 +4,11 @@ Status: the selected implementation and Linux author review are complete. The fu
 
 User-confirmed: show all legacy contest-analysis strategies that can be specified and validated, one per demand; use scrollable charts and tables for multi-metric results; include separate 27/31 and full 31/31 cycles; use workbook prize and winner fields with missing-data warnings; correct legacy defects and document differences; defer candidate scoring, betting generation and simulations; local workbook from the user data directory by default with path override, separate daily refresh, warn when a matching update is not recorded on the local day or freshness is unknown; warn and allow valid stale or unknown-freshness copy with explicit choice.
 
-Current state: the selected full scope was implemented and author-reviewed on Linux after the readiness review recorded below. The owner authorized implementation after decisions were settled and explicitly authorized archival on 2026-11-19; `estrategy-create` is archived with 79/79 tasks complete. The maintained capability is [interactive strategy analysis](../../openspec/specs/interactive-strategy-analysis/spec.md), and the completed change is in the [archive](../../openspec/changes/archive/2026-11-19-estrategy-create/). Release remains separate. Windows/macOS behavior and other evidence remain unverified as recorded in PROOF.
+Current state: the selected full scope was implemented and author-reviewed on Linux after the readiness review recorded below. The owner authorized implementation after decisions were settled and explicitly authorized archival on 2026-11-19; `estrategy-create` is archived with 79/79 tasks complete. The maintained capability is [interactive strategy analysis](../product/interactive-strategies.md), and the completed change is in the [archive](../changes/archive/2026-11-19-estrategy-create). Release remains separate. Windows/macOS behavior and other evidence remain unverified as recorded in PROOF.
 
 Review reconstruction (historical, proposal snapshot): the owner journey was described as launching an interactive terminal, selecting one strategy, seeing honest progress and a retained graph/table, and returning to the menu; bad or absent input was to be explained, and stale/unknown source was to be acknowledged before use. At that snapshot the existing binary only printed a notice. IA-01..07, the numerical and shared-series contracts define the selected scope. The author review below assessed readiness at that snapshot; it did not claim implemented behavior. The current implementation state is recorded in the current state above and in PROOF.
 
-Execution stages after readiness:
+Execution stages after readiness (historical plan, subsequently completed within the Linux evidence limits):
 1. Implement approved strategy and source contracts in coherent increments, preserving per-strategy independence.
 2. Integrate through the real terminal entry point and run cross-platform and data tests, then reconcile OpenSpec and PentaPRO.
 3. Prepare release separately; actual release needs its own authorization and platform evidence.
@@ -21,7 +21,7 @@ Next: no implementation tasks remain in the archived change. Release and distrib
 The dated and stage entries below are historical records of their own snapshots. Later entries and the current state above supersede earlier pending or blocked statements; do not read an early "pending" line as the present status.
 
 
-OpenSpec planning (historical): the owner requested [estrategy-create](../../openspec/changes/archive/2026-11-19-estrategy-create/proposal.md). At that planning snapshot its proposal, capability scenarios, design and tasks were structurally complete, and it was the single active implementation change. The earlier [interactive-strategy-analysis draft](../../openspec/history/interactive-strategy-analysis/proposal.md) is preserved as historical context. Full-scope numerical decisions were open then; the data-path contract is specified below and awaited implementation verification. Artifact completeness does not establish implementation readiness.
+OpenSpec planning (historical): the owner requested [estrategy-create](../changes/archive/2026-11-19-estrategy-create/proposal.md). At that planning snapshot its proposal, capability scenarios, design and tasks were structurally complete, and it was the single active implementation change. The earlier [interactive-strategy-analysis draft](../changes/archive/2026-11-16-interactive-strategy-analysis-draft/proposal.md) is preserved as historical context. Full-scope numerical decisions were open then; the data-path contract is specified below and awaited implementation verification. Artifact completeness does not establish implementation readiness.
 
 2026-11-16: Task 1.3 path and updater metadata contract reconciled across PROJECT, PRODUCTION, PROOF and active OpenSpec design; S04 example corrected from two to three adjacent pairs. These are specification changes only; executable checks remain planned. Full-scope readiness remains BLOCKED on P-01–P-04, per-strategy examples and five-pillar review. Next: complete task 1.2 and then task 1.4 before code.
 
@@ -76,7 +76,7 @@ Task 3.3 completed for chart/table result navigation and resize, with Linux evid
 
 Task 3.4 completed: Portuguese README and AGENTS state were updated, existing sections retained, and documented development invocation exercised on Linux. Next run the integration checks in tasks 4.1–4.3, record actual platform limitations and review the whole scope.
 
-Historical progress entries above preserve the status at their stated milestones; the current state is the latest integration record and OpenSpec task list.
+Historical progress entries above preserve the status at their stated milestones; the current state is the latest integration record and the archived task list in PentaPRO.
 
 Task 4.1 completed on Linux with formatting, lint, 21 tests, release compilation and real pseudo-terminal journeys including invalid/stale data, 22 strategies, cancellation and resizing. Hash-bound evidence and limits are in [PROOF](../proof/interactive-strategies.md#integrated-linux-verification--2026-11-16). Next record Windows/macOS availability and reconcile platform evidence (4.2).
 
